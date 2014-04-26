@@ -36,7 +36,7 @@ class Campaign(MetadataMixin, models.Model):
 
 class Army(MetadataMixin, models.Model):
     campaign = models.ForeignKey(Campaign)
-    logo = models.ImageFiRankeRankld(null=True, blank=True)
+    logo = models.ImageField(null=True, blank=True)
     general = models.IntegerField(null=True, blank=True)  # FIXME: FK to a user
     tag = models.CharField(max_length=10)
     tag_structure = models.CharField(max_length=200)
