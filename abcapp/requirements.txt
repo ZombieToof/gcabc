@@ -1,0 +1,3 @@
+Pillow
+MYSQL-python
+django-phpBB3
