@@ -1,5 +1,5 @@
 """
-Django settings for gcabc project.
+Django settings for gcsite project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/dev/topics/settings/
@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1*@b^g@wqd_au@9-e!lr46emrun1+pk60dz%p+jgqe6ebeuo&9'
+SECRET_KEY = 'i1*nuyyz#&cry2341chy-%hgj=6+3qv0z-==!s(@+z!#%d4n=h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,7 +36,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'abcapp'
+    'abcapp',
+    'django_phpBB3',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -44,13 +45,34 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'gcabc.urls'
+ROOT_URLCONF = 'gcsite.urls'
 
-WSGI_APPLICATION = 'gcabc.wsgi.application'
+WSGI_APPLICATION = 'gcsite.wsgi.application'
+
+#------------------------------------------------------------------------------
+# django-phpBB3 settings:
+
+PHPBB_TABLE_PREFIX = u"phpbb_"
+
+PHPBB_CAPTCHA_QUESTIONS_MODEL_EXIST = False
+
+# Add PhpBBPasswordHasher to the default hashers
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
+    'django_phpBB3.hashers.PhpBB3PasswordHasher',
+)
+
+#------------------------------------------------------------------------------
 
 
 # Database
@@ -58,10 +80,20 @@ WSGI_APPLICATION = 'gcabc.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'phpbb',
+        'USER': 'phpbb',
+        'PASSWORD': 'phpbb',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
