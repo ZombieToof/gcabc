@@ -55,7 +55,7 @@ class Division(MetadataMixin, models.Model):
     army = models.ForeignKey(Army)
     logo = models.ImageField(null=True, blank=True)
     commander = models.IntegerField(null=True, blank=True)  # FIXME: FK
-    is_headquater = models.BooleanField()
+    is_headquater = models.BooleanField(default=False)
 
 
 class Rank(MetadataMixin, models.Model):
