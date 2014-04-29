@@ -42,10 +42,10 @@ class Army(MetadataMixin, models.Model):
                                 related_name='+',  # omit back ref
                                 null=True,
                                 blank=True)
-    tag = models.CharField(max_length=10)
-    tag_structure = models.CharField(max_length=200)
-    ts_password = models.CharField(max_length=50)
-    join_password = models.CharField(max_length=50)
+    tag = models.CharField(max_length=10, null=True, blank=True)
+    tag_structure = models.CharField(max_length=200, null=True, blank=True)
+    ts_password = models.CharField(max_length=50, null=True, blank=True)
+    join_password = models.CharField(max_length=50, null=True, blank=True)
     color = models.CharField(max_length=7)
     draft_enabled = models.BooleanField(default=False)
     hc_forum_group = models.ForeignKey(phpbb_models.Group,
@@ -92,14 +92,17 @@ class Player(MetadataMixin, models.Model):
                                    related_name='soldiers')
     rank = models.ForeignKey(Rank,
                              related_name='players',
+                             null=True,
                              blank=True)
     drafted_for = models.ManyToManyField(Campaign,
                                          related_name='draftable_players',
+                                         null=True,
                                          blank=True)
     medals = models.ManyToManyField(Medal,
                                     related_name='players',
+                                    null=True,
                                     blank=True)
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
 
     def army(self):
         if not self.rank:
