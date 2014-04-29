@@ -36,8 +36,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'abcapp',
     'django_phpBB3',
+    'abcapp',
 )
 
 MIDDLEWARE_CLASSES = (
