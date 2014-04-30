@@ -39,6 +39,9 @@ class Campaign(MetadataMixin, models.Model):
     def details_url(self):
         return reverse('campaign', kwargs={'pk': self.id})
 
+    def battledays(self):
+        pass
+
 
 class Army(MetadataMixin, models.Model):
     campaign = models.ForeignKey(Campaign, related_name="armies")
@@ -65,6 +68,9 @@ class Army(MetadataMixin, models.Model):
                                              null=True,
                                              blank=True)
 
+    def sorted_ranks(self):
+        return self.ranks.order_by('-level', 'title')
+
 
 class Division(MetadataMixin, models.Model):
     army = models.ForeignKey(Army)
@@ -79,7 +85,7 @@ class Division(MetadataMixin, models.Model):
 class Rank(MetadataMixin, models.Model):
     phpbb_rank = models.OneToOneField(phpbb_models.Rank,
                                       related_name='abc_rank')
-    army = models.ForeignKey(Army)
+    army = models.ForeignKey(Army, related_name='ranks')
     abc_logo = models.ImageField(null=True, blank=True)
     level = models.IntegerField()
     is_officer = models.BooleanField(default=False)

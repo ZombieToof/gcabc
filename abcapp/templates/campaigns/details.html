@@ -1,18 +1,40 @@
 <h1>{{campaign.title}}</h1>
 
-<ul>
-    <li>id: {{ campaign.id }}</li>
-    <li>start: {{ campaign.start }}</li>
-    <li>end: {{ campaign.end }}</li>
-    <li>draft start: {{ campaign.draft_start }}</li>
-    <li>draft end: {{ campaign.draft_end }}</li>
-    <li>
-      Armies:
-      <ul>
+<dl>
+    <dt>id</dt>
+    <dd>{{ campaign.id }}</dd>
+    <dt>start</dt>
+    <dd>{{ campaign.start }}</dd>
+    <dt>end</dt>
+    <dd>{{ campaign.end }}</dd>
+    <dt>draft start</dt>
+    <dd>{{ campaign.draft_start }}</dd>
+    <dt>draft end</dt>
+    <dd>{{ campaign.draft_end }}</dd>
+    <dt>Armies</dt>
+    <dd>
+      <dl>
         {% for army in campaign.armies.all %}
-        <li>{{ army.title }}</li>
+        <dt>
+          {{ army.title }}
+        </dt>
+        <dd>
+          <dl>
+            <dt>Ranks</dt>
+            <dl>
+            {% for rank in army.sorted_ranks %}
+            <dt>{{rank.title}}</dt>
+            <dd>
+              level: {{rank.level}}<br />
+              is_officer: {{rank.is_officer}}<br />
+              phpbb_rank: {{rank.phpbb_rank}}
+            </dd>
+            {% endfor %}
+            </dl>
+          </dl>
+        </dd>
         {% endfor %}
-      </ul>
-    </li>
-</ul>
+      </dl>
+    </dd>
+</dl>
 
