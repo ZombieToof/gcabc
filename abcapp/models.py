@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django_phpBB3 import models as phpbb_models
@@ -31,12 +32,16 @@ class MetadataMixin(models.Model):
 class Campaign(MetadataMixin, models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField(null=True, blank=True)
-    draft_starts = models.DateTimeField(null=True, blank=True)
-    draft_ends = models.DateTimeField(null=True, blank=True)
+    draft_start = models.DateTimeField(null=True, blank=True)
+    draft_end = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def details_url(self):
+        return reverse('campaign', kwargs={'pk': self.id})
 
 
 class Army(MetadataMixin, models.Model):
-    campaign = models.ForeignKey(Campaign)
+    campaign = models.ForeignKey(Campaign, related_name="armies")
     logo = models.ImageField(null=True, blank=True)
     general = models.ForeignKey(phpbb_models.User,
                                 related_name='+',  # omit back ref
@@ -47,7 +52,6 @@ class Army(MetadataMixin, models.Model):
     ts_password = models.CharField(max_length=50, null=True, blank=True)
     join_password = models.CharField(max_length=50, null=True, blank=True)
     color = models.CharField(max_length=7)
-    draft_enabled = models.BooleanField(default=False)
     hc_forum_group = models.ForeignKey(phpbb_models.Group,
                                        related_name='+',  # omit back ref
                                        null=True,
