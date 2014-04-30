@@ -1,0 +1,18 @@
+<h1>{{campaign.title}}</h1>
+
+<ul>
+    <li>id: {{ campaign.id }}</li>
+    <li>start: {{ campaign.start }}</li>
+    <li>end: {{ campaign.end }}</li>
+    <li>draft start: {{ campaign.draft_start }}</li>
+    <li>draft end: {{ campaign.draft_end }}</li>
+    <li>
+      Armies:
+      <ul>
+        {% for army in campaign.armies.all %}
+        <li>{{ army.title }}</li>
+        {% endfor %}
+      </ul>
+    </li>
+</ul>
+

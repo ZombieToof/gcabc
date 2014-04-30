@@ -2,7 +2,7 @@
 
 <ul>
 {% for campaign in campaigns %}
-    <li>{{ campaign.id }} -- {{ campaign.title }}</li>
+    <li><a href="{{campaign.details_url}}">{{ campaign.title }}</a></li>
 {% endfor %}
 </ul>
 
