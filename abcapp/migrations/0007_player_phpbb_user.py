@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='player',
             name='phpbb_user',
-            field=models.ForeignKey(to='django_phpBB3.User', to_field='id'),
+            field=models.OneToOneField(to='django_phpBB3.User', to_field='id'),
             preserve_default=True,
         ),
     ]

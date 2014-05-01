@@ -66,8 +66,8 @@ class Migration(migrations.Migration):
                 ('updated', models.DateTimeField(auto_now=True)),
                 ('deleted', models.DateTimeField(null=True, blank=True)),
                 ('rank', models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Rank', null=True)),
+                ('drafted_for', models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Campaign', null=True)),
                 ('notes', models.TextField(null=True, blank=True)),
-                ('drafted_for', models.ManyToManyField(to='abcapp.Campaign', null=True, blank=True)),
                 ('medals', models.ManyToManyField(to='abcapp.Medal', null=True, blank=True)),
             ],
             options={
