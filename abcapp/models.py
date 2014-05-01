@@ -2,7 +2,9 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
-from django_phpBB3 import models as phpbb_models
+from django_phpBB3.models import Group as PhpbbGroup
+from django_phpBB3.models import Rank as PhpbbRank
+from django_phpBB3.models import User as PhpbbUser
 
 
 class MetadataMixin(models.Model):
@@ -46,7 +48,7 @@ class Campaign(MetadataMixin, models.Model):
 class Army(MetadataMixin, models.Model):
     campaign = models.ForeignKey(Campaign, related_name="armies")
     logo = models.ImageField(null=True, blank=True)
-    general = models.ForeignKey(phpbb_models.User,
+    general = models.ForeignKey(PhpbbUser,
                                 related_name='+',  # omit back ref
                                 null=True,
                                 blank=True)
@@ -55,15 +57,15 @@ class Army(MetadataMixin, models.Model):
     ts_password = models.CharField(max_length=50, null=True, blank=True)
     join_password = models.CharField(max_length=50, null=True, blank=True)
     color = models.CharField(max_length=7)
-    hc_forum_group = models.ForeignKey(phpbb_models.Group,
+    hc_forum_group = models.ForeignKey(PhpbbGroup,
                                        related_name='+',  # omit back ref
                                        null=True,
                                        blank=True)
-    officers_forum_group = models.ForeignKey(phpbb_models.Group,
+    officers_forum_group = models.ForeignKey(PhpbbGroup,
                                              related_name='+',  # omit back ref
                                              null=True,
                                              blank=True)
-    soldiers_forum_group = models.ForeignKey(phpbb_models.Group,
+    soldiers_forum_group = models.ForeignKey(PhpbbGroup,
                                              related_name='+',  # omit back ref
                                              null=True,
                                              blank=True)
@@ -75,7 +77,7 @@ class Army(MetadataMixin, models.Model):
 class Division(MetadataMixin, models.Model):
     army = models.ForeignKey(Army)
     logo = models.ImageField(null=True, blank=True)
-    commander = models.ForeignKey(phpbb_models.User,
+    commander = models.ForeignKey(PhpbbUser,
                                   related_name='+',  # omit back ref
                                   null=True,
                                   blank=True)
@@ -83,7 +85,7 @@ class Division(MetadataMixin, models.Model):
 
 
 class Rank(MetadataMixin, models.Model):
-    phpbb_rank = models.OneToOneField(phpbb_models.Rank,
+    phpbb_rank = models.OneToOneField(PhpbbRank,
                                       related_name='abc_rank')
     army = models.ForeignKey(Army, related_name='ranks')
     abc_logo = models.ImageField(null=True, blank=True)
@@ -98,7 +100,7 @@ class Medal(MetadataMixin, models.Model):
 
 
 class Player(MetadataMixin, models.Model):
-    phpbb_user = models.ForeignKey(phpbb_models.User,
+    phpbb_user = models.ForeignKey(PhpbbUser,
                                    related_name='soldiers')
     rank = models.ForeignKey(Rank,
                              related_name='players',
