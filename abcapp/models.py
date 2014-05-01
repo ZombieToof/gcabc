@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -12,7 +13,8 @@ class MetadataMixin(models.Model):
     title = models.CharField(max_length=400)
     description = models.TextField(blank=True)
     creator = models.ForeignKey('auth.User', blank=True, null=True,
-                                default=None, editable=False)
+                                default=None, editable=False,
+                                related_name='+')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     deleted = models.DateTimeField(null=True, blank=True)
@@ -36,6 +38,7 @@ class Campaign(MetadataMixin, models.Model):
     end = models.DateTimeField(null=True, blank=True)
     draft_start = models.DateTimeField(null=True, blank=True)
     draft_end = models.DateTimeField(null=True, blank=True)
+    draft_enabled = models.BooleanField(default=False)
 
     @property
     def details_url(self):
@@ -100,16 +103,16 @@ class Medal(MetadataMixin, models.Model):
 
 
 class Player(MetadataMixin, models.Model):
-    phpbb_user = models.ForeignKey(PhpbbUser,
-                                   related_name='soldiers')
+    phpbb_user = models.OneToOneField(PhpbbUser,
+                                      related_name='player')
     rank = models.ForeignKey(Rank,
                              related_name='players',
                              null=True,
                              blank=True)
-    drafted_for = models.ManyToManyField(Campaign,
-                                         related_name='draftable_players',
-                                         null=True,
-                                         blank=True)
+    drafted_for = models.ForeignKey(Campaign,
+                                    related_name='draftable_players',
+                                    null=True,
+                                    blank=True)
     medals = models.ManyToManyField(Medal,
                                     related_name='players',
                                     null=True,
