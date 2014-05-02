@@ -105,6 +105,8 @@ class Medal(MetadataMixin, models.Model):
 class Player(MetadataMixin, models.Model):
     phpbb_user = models.OneToOneField(PhpbbUser,
                                       related_name='player')
+    django_user = models.OneToOneField(User,
+                                       related_name='player')
     rank = models.ForeignKey(Rank,
                              related_name='players',
                              null=True,

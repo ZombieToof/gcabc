@@ -65,6 +65,7 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('updated', models.DateTimeField(auto_now=True)),
                 ('deleted', models.DateTimeField(null=True, blank=True)),
+                ('django_user', models.OneToOneField(to=settings.AUTH_USER_MODEL, to_field=u'id')),
                 ('rank', models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Rank', null=True)),
                 ('drafted_for', models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Campaign', null=True)),
                 ('notes', models.TextField(null=True, blank=True)),
