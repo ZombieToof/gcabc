@@ -9,9 +9,12 @@ from abcapp.models import Player
 
 
 def get_user(request):
-    if not hasattr(request, '_cached_user'):
-        request._cached_user = _get_user_via_phpbb_session(request)
-    return request._cached_user
+    if (not hasattr(request, '_cached_user') or
+        request._cached_user.is_anonymous()):
+        user = _get_user_via_phpbb_session(request)
+        if user:
+            request._cached_user = user
+    return getattr(request, '_cached_user', None)
 
 
 def _get_user_via_phpbb_session(request):
@@ -60,4 +63,8 @@ def _get_user_via_phpbb_session(request):
 
 class PhpbbAuthenticationMiddleware(object):
     def process_request(self, request):
-        request.user = get_user(request)
+        if request.user.is_authenticated():
+            return
+        user = get_user(request)
+        if user:
+            request.user = user
