@@ -24,6 +24,9 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+INTERNAL_IPS = ['127.0.0.1',  # django debug toolbar
+                '10.0.2.2']   # Vagrant host
+
 ALLOWED_HOSTS = []
 
 
@@ -34,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'debug_toolbar.apps.DebugToolbarConfig',  # Django >= 1.7
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_phpBB3',
