@@ -5,8 +5,8 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('abcapp', '0006_campaignparticipation_player'),
         ('django_phpBB3', '__first__'),
-        ('abcapp', '0005_army_general'),
     ]
 
     operations = [

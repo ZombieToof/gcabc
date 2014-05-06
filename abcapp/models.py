@@ -102,29 +102,39 @@ class Medal(MetadataMixin, models.Model):
     level = models.IntegerField()
 
 
-class Player(MetadataMixin, models.Model):
-    phpbb_user = models.OneToOneField(PhpbbUser,
-                                      related_name='player')
-    django_user = models.OneToOneField(User,
-                                       related_name='player')
-    rank = models.ForeignKey(Rank,
+class CampaignParticipation(MetadataMixin, models.Model):
+    ranks = models.ManyToManyField(Rank,
+                                   related_name='players',
+                                   null=True,
+                                   blank=True)
+    army = models.ForeignKey(Army,
                              related_name='players',
                              null=True,
                              blank=True)
-    drafted_for = models.ForeignKey(Campaign,
-                                    related_name='draftable_players',
-                                    null=True,
-                                    blank=True)
     medals = models.ManyToManyField(Medal,
                                     related_name='players',
                                     null=True,
                                     blank=True)
     notes = models.TextField(null=True, blank=True)
 
-    def army(self):
-        if not self.rank:
-            return None
-        return self.rank.army
+    player = models.ForeignKey('Player',
+                               related_name='participations')
+
+    campaign = models.ForeignKey(Campaign,
+                                 related_name='participations')
+
+    
+class Player(MetadataMixin, models.Model):
+    phpbb_user = models.OneToOneField(PhpbbUser,
+                                      related_name='player')
+    django_user = models.OneToOneField(User,
+                                       related_name='player')
+
+    campaigns = models.ManyToManyField(Campaign,
+                                       related_name='players',
+                                       through=CampaignParticipation,
+                                       null=True,
+                                       blank=True)
 
 
 admin.site.register(Campaign)

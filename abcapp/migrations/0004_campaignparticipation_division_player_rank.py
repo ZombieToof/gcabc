@@ -35,6 +35,28 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='CampaignParticipation',
+            fields=[
+                (u'id', models.AutoField(verbose_name=u'ID', serialize=False, auto_created=True, primary_key=True)),
+                ('slug', models.SlugField()),
+                ('title', models.CharField(max_length=400)),
+                ('description', models.TextField(blank=True)),
+                ('creator', models.ForeignKey(default=None, to_field=u'id', blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('updated', models.DateTimeField(auto_now=True)),
+                ('deleted', models.DateTimeField(null=True, blank=True)),
+                ('army', models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Army', null=True)),
+                ('notes', models.TextField(null=True, blank=True)),
+                ('campaign', models.ForeignKey(to='abcapp.Campaign', to_field=u'id')),
+                ('ranks', models.ManyToManyField(to='abcapp.Rank', null=True, blank=True)),
+                ('medals', models.ManyToManyField(to='abcapp.Medal', null=True, blank=True)),
+            ],
+            options={
+                u'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Division',
             fields=[
                 (u'id', models.AutoField(verbose_name=u'ID', serialize=False, auto_created=True, primary_key=True)),
@@ -66,10 +88,7 @@ class Migration(migrations.Migration):
                 ('updated', models.DateTimeField(auto_now=True)),
                 ('deleted', models.DateTimeField(null=True, blank=True)),
                 ('django_user', models.OneToOneField(to=settings.AUTH_USER_MODEL, to_field=u'id')),
-                ('rank', models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Rank', null=True)),
-                ('drafted_for', models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Campaign', null=True)),
-                ('notes', models.TextField(null=True, blank=True)),
-                ('medals', models.ManyToManyField(to='abcapp.Medal', null=True, blank=True)),
+                ('campaigns', models.ManyToManyField(to='abcapp.Campaign', null=True, through='abcapp.CampaignParticipation', blank=True)),
             ],
             options={
                 u'abstract': False,
