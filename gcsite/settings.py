@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_phpBB3',
     'abcapp',
+    'django_pdb',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -49,7 +50,8 @@ MIDDLEWARE_CLASSES = (
     'abcapp.middleware.PhpbbAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+    'django_pdb.middleware.PdbMiddleware',  # has to be the last middleware
+    )
 
 ROOT_URLCONF = 'gcsite.urls'
 

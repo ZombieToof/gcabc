@@ -1,3 +1,4 @@
 Pillow
 MYSQL-python
 django-phpBB3
+django-pdb
