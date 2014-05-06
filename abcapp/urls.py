@@ -9,4 +9,7 @@ urlpatterns = patterns(
     url(r'^campaigns/(?P<pk>\d+)/$',
         views.campaign.CampaignDetailView.as_view(),
         name='campaign'),
+    url(r'^profile/$',
+        views.profile.ProfileView.as_view(),
+        name='profile'),
 )

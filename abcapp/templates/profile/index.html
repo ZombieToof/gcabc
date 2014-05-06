@@ -1,0 +1,67 @@
+<html><head></head><body>
+<h1>Overview</h1>
+
+<p>
+  Soldier: {{user.player.phpbb_user.username}}<br />
+</p>
+
+
+{% if current_campaigns %}
+
+<h1>Current Campaigns</h1>
+
+{% for campaign in current_campaigns %}
+
+<div>
+{{ campaign.title }}
+</div>
+
+<div>
+{{ campaign.description }}
+</div>
+
+<div>
+
+</div>
+{% endfor %}
+{% endif %}
+
+
+
+{% if upcoming_campaigns %}
+
+<h1>Upcoming Campaigns</h1>
+
+{% for campaign in upcoming_campaigns %}
+
+<div>
+{{ campaign.title }}
+</div>
+
+<div>
+{{ campaign.description }}
+</div>
+
+{% endfor %}
+{% endif %}
+
+
+{% if past_campaigns %}
+
+<h1>Past Campaigns</h1>
+
+{% for campaign in past_campaigns %}
+
+<div>
+{{ campaign.title }}
+</div>
+
+<div>
+{{ campaign.description }}
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+</body>

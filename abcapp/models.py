@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Q
 from django.template.defaultfilters import slugify
 from django_phpBB3.models import Group as PhpbbGroup
 from django_phpBB3.models import Rank as PhpbbRank
@@ -46,6 +49,22 @@ class Campaign(MetadataMixin, models.Model):
 
     def battledays(self):
         pass
+
+    @classmethod
+    def current_campaigns(cls):
+        q_start = Q(start__lt=datetime.now())
+        q_end = (Q(end__gt=datetime.now()) | Q(end=None))
+        return cls.objects.filter(q_start & q_end)
+
+    @classmethod
+    def upcoming_campaigns(cls):
+        q_start = (Q(start__gt=datetime.now()) | Q(start=None))
+        return cls.objects.filter(q_start)
+
+    @classmethod
+    def past_campaigns(cls):
+        q_end = Q(end__lt=datetime.now())
+        return cls.objects.filter(q_end)
 
 
 class Army(MetadataMixin, models.Model):
