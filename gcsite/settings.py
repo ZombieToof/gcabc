@@ -24,6 +24,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'gcsite/templates'),)
 INTERNAL_IPS = ['127.0.0.1',  # django debug toolbar
                 '10.0.2.2']   # Vagrant host
 
@@ -42,6 +43,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_phpBB3',
     'abcapp',
+    'pinax_theme_bootstrap',
+    'bootstrapform',
     'django_pdb',
 )
 
@@ -120,3 +123,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "gcsite/static"),)

@@ -3,3 +3,4 @@ MYSQL-python
 django-phpBB3
 django-pdb
 django-debug-toolbar
+pinax-theme-bootstrap
