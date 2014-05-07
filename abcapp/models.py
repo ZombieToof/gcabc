@@ -40,8 +40,7 @@ class Campaign(MetadataMixin, models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField(null=True, blank=True)
     draft_start = models.DateTimeField(null=True, blank=True)
-    draft_end = models.DateTimeField(null=True, blank=True)
-    draft_enabled = models.BooleanField(default=False)
+    draft_disabled = models.BooleanField(default=False)
 
     @property
     def details_url(self):
