@@ -121,6 +121,7 @@ class Medal(MetadataMixin, models.Model):
 
 
 class CampaignParticipation(MetadataMixin, models.Model):
+
     ranks = models.ManyToManyField(Rank,
                                    related_name='players',
                                    null=True,
@@ -129,6 +130,10 @@ class CampaignParticipation(MetadataMixin, models.Model):
                              related_name='players',
                              null=True,
                              blank=True)
+    division = models.ForeignKey(Division,
+                                 related_name='players',
+                                 null=True,
+                                 blank=True)
     medals = models.ManyToManyField(Medal,
                                     related_name='players',
                                     null=True,
@@ -141,7 +146,10 @@ class CampaignParticipation(MetadataMixin, models.Model):
     campaign = models.ForeignKey(Campaign,
                                  related_name='participations')
 
-    
+    def rank(self):
+        return self.ranks.filter(army=self.army)
+
+
 class Player(MetadataMixin, models.Model):
     phpbb_user = models.OneToOneField(PhpbbUser,
                                       related_name='player')
