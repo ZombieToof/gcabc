@@ -1,11 +1,10 @@
-from datetime import datetime
-
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.template.defaultfilters import slugify
+from django.utils import timezone
 from django_phpBB3.models import Group as PhpbbGroup
 from django_phpBB3.models import Rank as PhpbbRank
 from django_phpBB3.models import User as PhpbbUser
@@ -51,19 +50,100 @@ class Campaign(MetadataMixin, models.Model):
 
     @classmethod
     def current_campaigns(cls):
-        q_start = Q(start__lt=datetime.now())
-        q_end = (Q(end__gt=datetime.now()) | Q(end=None))
+        q_start = Q(start__lt=timezone.now())
+        q_end = (Q(end__gt=timezone.now()) | Q(end=None))
         return cls.objects.filter(q_start & q_end)
 
     @classmethod
     def upcoming_campaigns(cls):
-        q_start = (Q(start__gt=datetime.now()) | Q(start=None))
+        q_start = (Q(start__gt=timezone.now()) | Q(start=None))
         return cls.objects.filter(q_start)
 
     @classmethod
     def past_campaigns(cls):
-        q_end = Q(end__lt=datetime.now())
+        q_end = Q(end__lt=timezone.now())
         return cls.objects.filter(q_end)
+
+    def participation_for_player(self, player):
+        return CampaignParticipation.objects.filter(
+            player=player, campaign=self).first()
+
+    def joinable(self):
+        now = timezone.now()
+
+        # overrule everything
+        if self.draft_disabled:
+            return False
+
+        if self.in_join_phase:
+            return True
+
+        # No dice
+        return False
+
+    @property
+    def in_join_phase(self):
+        # draft or campaign started
+        start = self.draft_start or self.start
+        now = timezone.now()
+        if start and start <= now and not self.finished:
+            return True
+
+    @property
+    def finished(self):
+        now = timezone.now()
+        return self.end < now if self.end else False
+
+    @property
+    def started(self):
+        now = timezone.now()
+        self.start and (self.start <= now)
+
+    @property
+    def running(self):
+        return self.started and not self.finished
+
+    def player_info(self, player):
+        participation = self.participation_for_player(player)
+        army = participation.army if participation else None
+        rank = participation.rank if participation else None
+        medals = participation.medals if participation else []
+        division = participation.division if participation else None
+        has_joined = bool(participation)
+
+        info = dict(
+            has_joined=has_joined,
+            can_join=self.joinable() and not has_joined,
+            draft_start=self.draft_start,
+            draft_disabled=self.draft_disabled,
+            start=self.start,
+            end=self.end,
+            title=self.title,
+            description=self.description,
+            campaign_armies=self.armies.all(),
+            details_url=reverse('abcapp.campaign', args=(self.id,)),
+            join_url=reverse('abcapp.campaign.join', args=(self.id,)),
+            army=army,
+            division=division,
+            rank=rank,
+            medals=medals,
+            status=self.status())
+
+        return info
+
+    def status(self):
+        now = timezone.now()
+        if self.finished:
+            return 'Finished'
+        elif self.running:
+            return 'Running'
+        elif self.joinable():
+            return 'In Draft'
+        elif self.draft_start and self.draft_start > now:
+            return 'Draft upcoming'
+        elif self.start and self.start > now:
+            return 'Upcoming'
+        return 'Unknown'
 
 
 class Army(MetadataMixin, models.Model):
@@ -164,7 +244,9 @@ class Player(MetadataMixin, models.Model):
 
 
 admin.site.register(Campaign)
+admin.site.register(CampaignParticipation)
 admin.site.register(Army)
+admin.site.register(Division)
 admin.site.register(Rank)
 admin.site.register(Medal)
 admin.site.register(Player)
