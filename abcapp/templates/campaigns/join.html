@@ -1,0 +1,35 @@
+{% extends "layout/__base.html" %}
+
+{% block "header_title" %} Join Campaign {{ campaign.title }} {% endblock %}
+
+{% block body %}
+
+<h1>Join {{campaign.title}}</h1>
+
+{% if no_player %}
+
+<p>
+  You are not authenticated as a Forum user. Please 
+  <a href="/forum">go to the Forum</a> and log in. If you are 
+  logged in you can got to your ABC page and join the campaign.
+</p>
+
+{% endif %}
+
+{% if already_joined %}
+<p>
+  You have already joined. You can view the details here: FIXME.
+</p>
+
+{% endif %}
+
+{% if joined %}
+<p>
+  Congratulations! You just joined the draft for {{campaign.title}}.
+  You can view the details here: FIXME.
+</p>
+
+{% endif %}
+
+
+{% endblock %}
