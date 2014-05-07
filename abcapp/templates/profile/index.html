@@ -1,73 +1,94 @@
 {% extends "layout/__base.html" %}
 
-{% block "header_title" %}Campaigns{% endblock %}
+{% block "header_title" %}
+  {{user.player.phpbb_user.username}}'s Profile
+{% endblock %}
 
 {% block body %}
 
-<h1>Overview</h1>
+{% if no_user %}
 
-<p>
-  Soldier: {{user.player.phpbb_user.username}}<br />
-</p>
-
-
-{% if current_campaigns %}
-
-<h1>Current Campaigns</h1>
-
-{% for campaign in current_campaigns %}
-
-<div>
-{{ campaign.title }}
-</div>
-
-<div>
-{{ campaign.description }}
-</div>
-
-<div>
-
-</div>
-{% endfor %}
-{% endif %}
-
-
-
-{% if upcoming_campaigns %}
-
-<h1>Upcoming Campaigns</h1>
-
-{% for campaign in upcoming_campaigns %}
-
-<div>
-{{ campaign.title }}
-</div>
-
-<div>
-{{ campaign.description }}
-</div>
-
-{% endfor %}
-{% endif %}
-
-
-{% if past_campaigns %}
-
-<h1>Past Campaigns</h1>
-
-{% for campaign in past_campaigns %}
-
-<div>
-{{ campaign.title }}
-</div>
-
-<div>
-{{ campaign.description }}
-</div>
-
-{% endfor %}
+FIXME: No auth, login
 
 {% endif %}
 
+{% if no_user %}
+
+FIXME: No auth, login
+
+{% endif %}
+
+{% if user.player %}
+  <h1>{{user.player.phpbb_user.username}}'s Profile</h1>
+
+  {% for cl in campaign_lists %}
+  {% if cl.campaigns %}
+    
+  <div>
+    <h2>{{cl.title}}</h2>
+
+    {% for campaign in cl.campaigns %}
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ campaign.title }} 
+          {% if campaign.can_join %}
+            <a href="{{campaign.join_url}}"
+               class="btn btn-primary">Join the draft</a></h3>
+          {% endif%}
+        </div>
+        <div class="panel-body">
+          <p>{{ campaign.description }}</p>
+
+          <table class="table table-striped">
+
+            {% for data in campaign.status_table_data %}
+            <tr>
+              <th>{{ data.title }}</th>
+              <td>
+                {{ data.value }}
+              </td>
+            </tr>
+            {% endfor %}
+            {% if campaign.has_joined %}
+            <tr>
+              <th>Assigned to</th>
+              <td>{{ campaign.army.title|default:"Not assigned to an army." }}</td>
+            </tr>
+            <tr>
+              <th>Division</th>
+              <td>
+                {{ campaign.division.title|default:"Not assigned to a devision" }}
+              </td>
+            </tr>
+            <tr>
+              <th>Rank</th>
+              <td>{{ campaign.rank|default:"No rank assigned yet." }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <th>Armies</th>
+              <td>
+                  {% for army in campaign.campaign_armies %}
+                  <div><a href="#FIXME">{{ army.title }}</a></div>
+                  {% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th></th>
+              <td></td>
+            </tr>
+
+          </table>
+           
+          <p><a class="btn btn-info" href="{{campaign.url}}">Campaign Details</a>
+          </p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endfor %}
+
+{% endif %}
 </body>
 {% endblock %}
