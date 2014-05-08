@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -258,11 +257,3 @@ class Player(MetadataMixin, models.Model):
     @property
     def title(self):
         return self.phpbb_user.username
-
-admin.site.register(Campaign)
-admin.site.register(CampaignParticipation)
-admin.site.register(Army)
-admin.site.register(Division)
-admin.site.register(Rank)
-admin.site.register(Medal)
-admin.site.register(Player)
