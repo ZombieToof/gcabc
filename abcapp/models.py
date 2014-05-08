@@ -69,8 +69,6 @@ class Campaign(MetadataMixin, models.Model):
             player=player, campaign=self).first()
 
     def joinable(self):
-        now = timezone.now()
-
         # overrule everything
         if self.draft_disabled:
             return False
