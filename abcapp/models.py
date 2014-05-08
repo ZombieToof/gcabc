@@ -10,16 +10,25 @@ from django_phpBB3.models import Rank as PhpbbRank
 from django_phpBB3.models import User as PhpbbUser
 
 
-class MetadataMixin(models.Model):
-    slug = models.SlugField()
+class TitleDescriptionMixin(models.Model):
+
     title = models.CharField(max_length=400)
     description = models.TextField(blank=True)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.title
+
+
+class MetadataMixin(models.Model):
     creator = models.ForeignKey('auth.User', blank=True, null=True,
                                 default=None, editable=False,
                                 related_name='+')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    deleted = models.DateTimeField(null=True, blank=True)
+    deleted = models.DateTimeField(null=True, blank=True, editable=False)
 
     class Meta:
         abstract = True
@@ -31,11 +40,10 @@ class MetadataMixin(models.Model):
         super(MetadataMixin, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '<%s %s: %s>' % (self.__class__.__name__, self.id or None,
-                                self.title)
+        return self.title
 
 
-class Campaign(MetadataMixin, models.Model):
+class Campaign(TitleDescriptionMixin, MetadataMixin, models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField(null=True, blank=True)
     draft_start = models.DateTimeField(null=True, blank=True)
@@ -144,7 +152,7 @@ class Campaign(MetadataMixin, models.Model):
         return 'Unknown'
 
 
-class Army(MetadataMixin, models.Model):
+class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
     campaign = models.ForeignKey(Campaign, related_name="armies")
     logo = models.ImageField(null=True, blank=True)
     general = models.ForeignKey(PhpbbUser,
@@ -173,7 +181,7 @@ class Army(MetadataMixin, models.Model):
         return self.ranks.order_by('-level', 'title')
 
 
-class Division(MetadataMixin, models.Model):
+class Division(TitleDescriptionMixin, MetadataMixin, models.Model):
     army = models.ForeignKey(Army)
     logo = models.ImageField(null=True, blank=True)
     commander = models.ForeignKey(PhpbbUser,
@@ -183,7 +191,7 @@ class Division(MetadataMixin, models.Model):
     is_headquater = models.BooleanField(default=False)
 
 
-class Rank(MetadataMixin, models.Model):
+class Rank(TitleDescriptionMixin, MetadataMixin, models.Model):
     phpbb_rank = models.OneToOneField(PhpbbRank,
                                       related_name='abc_rank')
     army = models.ForeignKey(Army, related_name='ranks')
@@ -192,7 +200,7 @@ class Rank(MetadataMixin, models.Model):
     is_officer = models.BooleanField(default=False)
 
 
-class Medal(MetadataMixin, models.Model):
+class Medal(TitleDescriptionMixin, MetadataMixin, models.Model):
     army = models.ForeignKey(Army)
     logo = models.ImageField(null=True, blank=True)
     level = models.IntegerField()
@@ -224,8 +232,15 @@ class CampaignParticipation(MetadataMixin, models.Model):
     campaign = models.ForeignKey(Campaign,
                                  related_name='participations')
 
+    class Meta(object):
+        unique_together = (('player', 'campaign'),)
+
     def rank(self):
         return self.ranks.filter(army=self.army)
+
+    @property
+    def title(self):
+        return u'%s - %s' % (self.player.title, self.campaign.title)
 
 
 class Player(MetadataMixin, models.Model):
@@ -240,6 +255,9 @@ class Player(MetadataMixin, models.Model):
                                        null=True,
                                        blank=True)
 
+    @property
+    def title(self):
+        return self.phpbb_user.username
 
 admin.site.register(Campaign)
 admin.site.register(CampaignParticipation)
