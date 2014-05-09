@@ -4,9 +4,13 @@ from django.db import models
 from django.db.models import Q
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.html import format_html
 from django_phpBB3.models import Group as PhpbbGroup
 from django_phpBB3.models import Rank as PhpbbRank
 from django_phpBB3.models import User as PhpbbUser
+
+
+from abcapp.middleware.cache import get_request_cache
 
 
 class TitleDescriptionMixin(models.Model):
@@ -257,3 +261,37 @@ class Player(MetadataMixin, models.Model):
     @property
     def title(self):
         return self.phpbb_user.username
+
+    def cached_army_info(self):
+        cache = get_request_cache()
+        if not 'player_to_army_info' in cache:
+            print 'calc info'
+            running_campaign = Campaign.current_campaigns().first()
+            armies = running_campaign.armies.all()
+            player_to_army_info = {}
+            for army in armies:
+                color = army.color
+                players = army.players.all()
+                for player in players:
+                    player_to_army_info[player.id] = {'color': color,
+                                                      'title': army.title}
+
+            cache.set('player_to_army_info', player_to_army_info)
+
+        return cache.get('player_to_army_info').get(self.id)
+
+    def colored_name(self):
+        color_style = ''
+        army = ''
+
+        info = self.cached_army_info()
+        if info:
+            color_style = 'color: #%s' % info['color']
+            army = '(%s)' % info['title']
+
+        return format_html(
+            '&nbsp;&nbsp;<span style="font-size: 12px; '
+            'font-weight: bold; {0};">{1} {2}</span>',
+            color_style, self.title, army)
+
+    colored_name.allow_tags = True

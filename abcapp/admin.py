@@ -4,7 +4,6 @@ from django.db.models import get_app
 from django.db.models import get_models
 
 from abcapp.models import Campaign
-from abcapp.models import CampaignParticipation
 from abcapp.models import Army
 from abcapp.models import Division
 from abcapp.models import Rank
@@ -46,6 +45,11 @@ class CampaignParticipationInline(admin.StackedInline):
 
     model = Player.campaigns.through
     extra = 0
+    readonly_fields = ('campaign',)
+    fields = (('campaign', 'army', 'division'),
+              ('ranks', 'medals'),
+              'notes')
+
     # def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
 
     #     field = super(CampaignParticipationInline,
@@ -66,6 +70,7 @@ class PlayerAdmin(admin.ModelAdmin):
 
     inlines = (CampaignParticipationInline,)
     readonly_fields = ('phpbb_user', 'django_user')
+    list_display = ('colored_name',)
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -77,6 +82,5 @@ class PlayerAdmin(admin.ModelAdmin):
         # just save obj reference for future processing in Inline
         request._obj_ = obj
         return super(PlayerAdmin, self).get_form(request, obj, **kwargs)
-
 
 registerModels()
