@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'debug_toolbar.apps.DebugToolbarConfig',  # Django >= 1.7
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'django_phpBB3',
     'abcapp',
     'pinax_theme_bootstrap',
@@ -54,10 +55,11 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 #    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'abcapp.middleware.PhpbbAuthenticationMiddleware',
+    'abcapp.middleware.phpbb.PhpbbAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_pdb.middleware.PdbMiddleware',  # has to be the last middleware
+    'abcapp.middleware.cache.RequestCacheMiddleware',
     )
 
 ROOT_URLCONF = 'gcsite.urls'
