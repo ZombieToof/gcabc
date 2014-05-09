@@ -1,9 +1,13 @@
+
 from django.contrib.auth.models import User
+from django.core.cache.backends.locmem import LocMemCache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
 from django_phpBB3.models import Config as PhpbbConfig
 from django_phpBB3.models import Session as PhpbbSession
+
+from threading import currentThread
 
 from abcapp.models import Player
 
@@ -68,3 +72,35 @@ class PhpbbAuthenticationMiddleware(object):
         user = get_user(request)
         if user:
             request.user = user
+
+
+# --[ Cache middleware ]-----------------------------------------------
+# found at: http://stackoverflow.com/a/8759188
+
+_request_cache = {}
+_installed_middleware = False
+
+
+ssdef get_request_cache():
+    assert _installed_middleware, 'RequestCacheMiddleware not loaded'
+    return _request_cache[currentThread()]
+
+
+# LocMemCache is a threadsafe local memory cache
+class RequestCache(LocMemCache):
+    def __init__(self):
+        name = 'locmemcache@%i' % hash(currentThread())
+        params = dict()
+        super(RequestCache, self).__init__(name, params)
+
+
+class RequestCacheMiddleware(object):
+    def __init__(self):
+        global _installed_middleware
+        _installed_middleware = True
+
+    def process_request(self, request):
+        cache = _request_cache.get(currentThread()) or RequestCache()
+        _request_cache[currentThread()] = cache
+
+        cache.clear()
