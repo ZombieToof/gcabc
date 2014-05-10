@@ -1,0 +1,24 @@
+{% extends "layout/__base.html" %}
+
+{% block "header_title" %}All Armies evar{% endblock %}
+
+{% block body %}
+<h1>All armies evar</h1>
+
+{% regroup armies by campaign as campaigns %}
+<ul>
+{% for campaign in campaigns %}
+  <li><h3>{{campaign.grouper}}</h3>
+  
+  <ul>
+  {% for army in campaign.list %}
+     <li><a href="#FIXME">{{ army.title }}</a></li>
+  {% endfor %}
+  </ul>
+  </li>
+  {% endfor %}
+
+</ul>
+
+{% endblock %}
+
