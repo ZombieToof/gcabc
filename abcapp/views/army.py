@@ -27,3 +27,38 @@ class CampaignArmyListView(ArmyListView):
         context['armies'] = armies
         context['campaign'] = campaign
         return context
+
+
+class CampaignArmyDetailView(DetailView):
+
+    model = Campaign
+    context_object_name = 'campaign'
+    template_name = 'army/details.html'
+
+    def get_context_data(self, **context):
+        context = super(CampaignArmyDetailView,
+                        self).get_context_data(**context)
+        campaign = context['campaign']
+        army = get_object_or_404(Army, id=self.kwargs['army_id'],
+                                 campaign=campaign)
+        context['army'] = army
+        context['players'] = army.players.order_by('title').all()
+        context['divisions'] = army.divisions
+        ## # player
+        ## user = getattr(self.request, 'user', None)
+        ## context['user'] = user
+        ## try:
+        ##     player = user.player
+        ## except (AttributeError, ObjectDoesNotExist):
+        ##     context['no_player'] = True
+        ##     return context
+
+        ## participation = CampaignParticipation.objects.filter(
+        ##     player=player, campaign=campaign).first()
+
+        ## if participation is not None:
+        ##     context['already_joined'] = True
+        ##     context['participation'] = participation
+        ##     return context
+
+        return context

@@ -1,0 +1,35 @@
+{% extends "layout/__base.html" %}
+
+{% block "header_title" %}All Armies evar{% endblock %}
+
+{% block body %}
+<h1>Campaign {{campaign.title}}, Army: {{army.title}}</h1>
+
+<h3>Divisions and Players by Division</h3>
+<ul>
+  {% for division in army.divisions.all %}
+  <li>
+    {{division.title}}
+    <ul>
+      {% for player in division.player.all %}
+      <li>
+        {{player.title}}
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
+</ul>
+
+<h3>All Players</h3>
+<ul>
+  {% for player in army.players.all %}
+  <li>
+    {{player.title}}
+  </li>
+  {% endfor %}
+</ul>
+
+
+{% endblock %}
+

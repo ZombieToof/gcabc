@@ -12,7 +12,7 @@
   
   <ul>
   {% for army in campaign.list %}
-     <li><a href="#FIXME">{{ army.title }}</a></li>
+     <li><a href="{% url 'abcapp.campaign.army.details' pk=campaign.grouper.id army_id=army.id %}">{{ army.title }}</a></li>
   {% endfor %}
   </ul>
   </li>
