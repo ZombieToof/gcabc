@@ -1,0 +1,15 @@
+{% extends "layout/__base.html" %}
+
+{% block "header_title" %}{{ campaign.title }}: Armies{% endblock %}
+
+{% block body %}
+<h1>{{ campaign.title }}: Armies</h1>
+
+  
+{% for army in armies %}
+<h3><a href="#FIXME">{{ army.title }}</a></h3>
+{% endfor %}
+
+
+{% endblock %}
+
