@@ -11,8 +11,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='campaignparticipation',
-            name='player',
-            field=models.ForeignKey(to='abcapp.Player', to_field=u'id'),
+            name='division',
+            field=models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Division', null=True),
             preserve_default=True,
         ),
     ]
