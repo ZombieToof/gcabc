@@ -185,7 +185,7 @@ class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
 
 
 class Division(TitleDescriptionMixin, MetadataMixin, models.Model):
-    army = models.ForeignKey(Army)
+    army = models.ForeignKey(Army, related_name='divisions')
     logo = models.ImageField(null=True, blank=True)
     commander = models.ForeignKey(PhpbbUser,
                                   related_name='+',  # omit back ref
