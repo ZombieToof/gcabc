@@ -35,7 +35,7 @@ def registerModels():
     '''
     admin.site.register(Campaign)
     admin.site.register(Army)
-    admin.site.register(Division)
+    admin.site.register(Division, DivisionAdmin)
     admin.site.register(Rank)
     admin.site.register(Medal)
     admin.site.register(Player, PlayerAdmin)
@@ -82,5 +82,15 @@ class PlayerAdmin(admin.ModelAdmin):
         # just save obj reference for future processing in Inline
         request._obj_ = obj
         return super(PlayerAdmin, self).get_form(request, obj, **kwargs)
+
+
+class DivisionAdmin(admin.ModelAdmin):
+
+    list_display = ('title', 'army', 'campaign')
+
+    def campaign(self, obj):
+        return obj.army.campaign
+
+    campaign.admin_order_field = 'army__campaign'
 
 registerModels()
