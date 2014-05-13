@@ -46,11 +46,8 @@ class CampaignJoinView(DetailView):
             context['participation'] = participation
             return context
 
-        title = u'User %s participates in Campaign %s' % (
-            player.phpbb_user.username, campaign.title)
-        slug = '%s-%s' % (player.phpbb_user.username, campaign.title)
         participation = CampaignParticipation.objects.create(
-            player=player, campaign=campaign, title=title, slug=slug)
+            player=player, campaign=campaign)
         context['participation'] = participation
         context['joined'] = True
         return context
