@@ -183,6 +183,27 @@ class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
     def sorted_ranks(self):
         return self.ranks.order_by('-level', 'title')
 
+    def sorted_medals(self):
+        return self.medals.order_by('-level', 'title')
+
+    def participation_for_player(self, player):
+        participation = CampaignParticipation.objects.filter(
+            army=self, player=player).first()
+        return participation
+
+    def is_officer(self, player):
+        participation = self.participation_for_player(player)
+        rank = participation.current_rank()
+        if not rank:
+            return False
+        return rank.is_officer
+
+    @property
+    def details_url(self):
+        return reverse('abcapp.campaign.army.details',
+                       kwargs={'pk': self.campaign.id,
+                               'army_id': self.id})
+
 
 class Division(TitleDescriptionMixin, MetadataMixin, models.Model):
     army = models.ForeignKey(Army, related_name='divisions')
@@ -204,7 +225,7 @@ class Rank(TitleDescriptionMixin, MetadataMixin, models.Model):
 
 
 class Medal(TitleDescriptionMixin, MetadataMixin, models.Model):
-    army = models.ForeignKey(Army)
+    army = models.ForeignKey(Army, related_name='medals')
     logo = models.ImageField(null=True, blank=True)
     level = models.IntegerField()
 
@@ -212,19 +233,19 @@ class Medal(TitleDescriptionMixin, MetadataMixin, models.Model):
 class CampaignParticipation(MetadataMixin, models.Model):
 
     ranks = models.ManyToManyField(Rank,
-                                   related_name='players',
+                                   related_name='participations',
                                    null=True,
                                    blank=True)
     army = models.ForeignKey(Army,
-                             related_name='players',
+                             related_name='participations',
                              null=True,
                              blank=True)
     division = models.ForeignKey(Division,
-                                 related_name='players',
+                                 related_name='participations',
                                  null=True,
                                  blank=True)
     medals = models.ManyToManyField(Medal,
-                                    related_name='players',
+                                    related_name='participations',
                                     null=True,
                                     blank=True)
     notes = models.TextField(null=True, blank=True)
@@ -238,8 +259,10 @@ class CampaignParticipation(MetadataMixin, models.Model):
     class Meta(object):
         unique_together = (('player', 'campaign'),)
 
-    def rank(self):
-        return self.ranks.filter(army=self.army)
+    def current_rank(self):
+        ranks = self.ranks.filter(army=self.army)
+        highest_rank = ranks.order_by('level').first()
+        return highest_rank
 
     @property
     def title(self):
@@ -264,21 +287,21 @@ class Player(MetadataMixin, models.Model):
 
     def cached_army_info(self):
         cache = get_request_cache()
-        if not 'player_to_army_info' in cache:
+        if not 'participation_to_army_info' in cache:
             print 'calc info'
             running_campaign = Campaign.current_campaigns().first()
             armies = running_campaign.armies.all()
-            player_to_army_info = {}
+            participation_to_army_info = {}
             for army in armies:
                 color = army.color
-                players = army.players.all()
-                for player in players:
-                    player_to_army_info[player.id] = {'color': color,
+                participations = army.participations.all()
+                for participation in participations:
+                    participation_to_army_info[participation.id] = {'color': color,
                                                       'title': army.title}
 
-            cache.set('player_to_army_info', player_to_army_info)
+            cache.set('participation_to_army_info', participation_to_army_info)
 
-        return cache.get('player_to_army_info').get(self.id)
+        return cache.get('participation_to_army_info').get(self.id)
 
     def colored_name(self):
         color_style = ''
