@@ -18,6 +18,10 @@ urlpatterns = patterns(
     url(r'^campaigns/(?P<pk>\d+)/army/(?P<army_id>\d+)$',
         views.army.CampaignArmyDetailView.as_view(),
         name='abcapp.campaign.army.details'),
+    url(r'^campaigns/(?P<pk>\d+)/army/(?P<army_id>\d+)/'
+        r'player/(?P<participation_id>\d+)$',
+        views.army.EditArmyMemberFormView.as_view(),
+        name='abcapp.campaign.army.member.edit'),
     url(r'^army/$',
         views.army.ArmyListView.as_view(),
         name='abcapp.army'),

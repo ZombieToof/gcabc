@@ -22,13 +22,36 @@
 </ul>
 
 <h3>All Players</h3>
-<ul>
-  {% for player in army.players.all %}
-  <li>
-    {{player.title}}
-  </li>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Division</th>
+      <th>Rank</th>
+      <th>Medals</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for participation in participations %}
+  <tr>
+    <td>{{participation.player.title}}</td>
+    <td>{{participation.division.title}}</td>
+    <td>{{participation.current_rank.title}}</td>
+    <td>{{participation.medals.all|join:'<br />'}}</td>
+    <td>
+      <a class="btn btn-primary"
+         href="{% url 'abcapp.campaign.army.member.edit' pk=army.campaign.id army_id=army.id participation_id=participation.id %}">
+        Edit
+      </a>
+    </td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
   {% endfor %}
-</ul>
+  </tbody>
+</table>
 
 
 {% endblock %}

@@ -1,0 +1,21 @@
+{% extends "layout/__base.html" %}
+
+{% block "header_title" %}All Armies evar{% endblock %}
+
+{% block body %}
+<h1>Edit player {{participation.player.title}}</h1>
+
+<h3>{{participation}}</h3>
+
+
+<form action="" method="post">
+
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<input type="submit" value="Submit" />
+</form>
+
+{% endblock %}
+
