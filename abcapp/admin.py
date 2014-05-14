@@ -41,7 +41,7 @@ def registerModels():
     admin.site.register(Player, PlayerAdmin)
 
 
-class CampaignParticipationInline(admin.StackedInline):
+class CampaignMembershipInline(admin.StackedInline):
 
     model = Player.campaigns.through
     extra = 0
@@ -52,7 +52,7 @@ class CampaignParticipationInline(admin.StackedInline):
 
     # def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
 
-    #     field = super(CampaignParticipationInline,
+    #     field = super(CampaignMembershipInline,
     #                   self).formfield_for_foreignkey(db_field, request,
     #                                                  **kwargs)
 
@@ -68,7 +68,7 @@ class CampaignParticipationInline(admin.StackedInline):
 
 class PlayerAdmin(admin.ModelAdmin):
 
-    inlines = (CampaignParticipationInline,)
+    inlines = (CampaignMembershipInline,)
     readonly_fields = ('phpbb_user', 'django_user')
     list_display = ('colored_name',)
 

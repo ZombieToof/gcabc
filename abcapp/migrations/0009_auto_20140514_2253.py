@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
-            name='campaignparticipation',
+            name='campaignmembership',
             unique_together=set([('player', 'campaign')]),
         ),
     ]

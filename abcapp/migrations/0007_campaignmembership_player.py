@@ -5,14 +5,14 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('abcapp', '0005_army_general'),
+        ('abcapp', '0006_campaignmembership_division'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='campaignparticipation',
-            name='division',
-            field=models.ForeignKey(to_field=u'id', blank=True, to='abcapp.Division', null=True),
+            model_name='campaignmembership',
+            name='player',
+            field=models.ForeignKey(to='abcapp.Player', to_field=u'id'),
             preserve_default=True,
         ),
     ]

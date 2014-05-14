@@ -75,8 +75,8 @@ class Campaign(TitleDescriptionMixin, MetadataMixin, models.Model):
         q_end = Q(end__lt=timezone.now())
         return cls.objects.filter(q_end)
 
-    def participation_for_player(self, player):
-        return CampaignParticipation.objects.filter(
+    def membership_for_player(self, player):
+        return CampaignMembership.objects.filter(
             player=player, campaign=self).first()
 
     def joinable(self):
@@ -113,12 +113,12 @@ class Campaign(TitleDescriptionMixin, MetadataMixin, models.Model):
         return self.started and not self.finished
 
     def player_info(self, player):
-        participation = self.participation_for_player(player)
-        army = participation.army if participation else None
-        rank = participation.rank if participation else None
-        medals = participation.medals if participation else []
-        division = participation.division if participation else None
-        has_joined = bool(participation)
+        membership = self.membership_for_player(player)
+        army = membership.army if membership else None
+        rank = membership.rank if membership else None
+        medals = membership.medals if membership else []
+        division = membership.division if membership else None
+        has_joined = bool(membership)
 
         info = dict(
             has_joined=has_joined,
@@ -186,14 +186,14 @@ class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
     def sorted_medals(self):
         return self.medals.order_by('-level', 'title')
 
-    def participation_for_player(self, player):
-        participation = CampaignParticipation.objects.filter(
+    def membership_for_player(self, player):
+        membership = CampaignMembership.objects.filter(
             army=self, player=player).first()
-        return participation
+        return membership
 
     def is_officer(self, player):
-        participation = self.participation_for_player(player)
-        rank = participation.current_rank()
+        membership = self.membership_for_player(player)
+        rank = membership.current_rank()
         if not rank:
             return False
         return rank.is_officer
@@ -230,31 +230,31 @@ class Medal(TitleDescriptionMixin, MetadataMixin, models.Model):
     level = models.IntegerField()
 
 
-class CampaignParticipation(MetadataMixin, models.Model):
+class CampaignMembership(MetadataMixin, models.Model):
 
     ranks = models.ManyToManyField(Rank,
-                                   related_name='participations',
+                                   related_name='memberships',
                                    null=True,
                                    blank=True)
     army = models.ForeignKey(Army,
-                             related_name='participations',
+                             related_name='memberships',
                              null=True,
                              blank=True)
     division = models.ForeignKey(Division,
-                                 related_name='participations',
+                                 related_name='memberships',
                                  null=True,
                                  blank=True)
     medals = models.ManyToManyField(Medal,
-                                    related_name='participations',
+                                    related_name='memberships',
                                     null=True,
                                     blank=True)
     notes = models.TextField(null=True, blank=True)
 
     player = models.ForeignKey('Player',
-                               related_name='participations')
+                               related_name='memberships')
 
     campaign = models.ForeignKey(Campaign,
-                                 related_name='participations')
+                                 related_name='memberships')
 
     class Meta(object):
         unique_together = (('player', 'campaign'),)
@@ -277,7 +277,7 @@ class Player(MetadataMixin, models.Model):
 
     campaigns = models.ManyToManyField(Campaign,
                                        related_name='players',
-                                       through=CampaignParticipation,
+                                       through=CampaignMembership,
                                        null=True,
                                        blank=True)
 
@@ -287,21 +287,21 @@ class Player(MetadataMixin, models.Model):
 
     def cached_army_info(self):
         cache = get_request_cache()
-        if not 'participation_to_army_info' in cache:
+        if not 'membership_to_army_info' in cache:
             print 'calc info'
             running_campaign = Campaign.current_campaigns().first()
             armies = running_campaign.armies.all()
-            participation_to_army_info = {}
+            membership_to_army_info = {}
             for army in armies:
                 color = army.color
-                participations = army.participations.all()
-                for participation in participations:
-                    participation_to_army_info[participation.id] = {'color': color,
+                memberships = army.memberships.all()
+                for membership in memberships:
+                    membership_to_army_info[membership.id] = {'color': color,
                                                       'title': army.title}
 
-            cache.set('participation_to_army_info', participation_to_army_info)
+            cache.set('membership_to_army_info', membership_to_army_info)
 
-        return cache.get('participation_to_army_info').get(self.id)
+        return cache.get('membership_to_army_info').get(self.id)
 
     def colored_name(self):
         color_style = ''

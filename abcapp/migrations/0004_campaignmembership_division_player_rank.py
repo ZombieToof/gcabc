@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='CampaignParticipation',
+            name='CampaignMembership',
             fields=[
                 (u'id', models.AutoField(verbose_name=u'ID', serialize=False, auto_created=True, primary_key=True)),
                 ('creator', models.ForeignKey(default=None, to_field=u'id', blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True)),
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
                 ('updated', models.DateTimeField(auto_now=True)),
                 ('deleted', models.DateTimeField(null=True, editable=False, blank=True)),
                 ('django_user', models.OneToOneField(to=settings.AUTH_USER_MODEL, to_field=u'id')),
-                ('campaigns', models.ManyToManyField(to='abcapp.Campaign', null=True, through='abcapp.CampaignParticipation', blank=True)),
+                ('campaigns', models.ManyToManyField(to='abcapp.Campaign', null=True, through='abcapp.CampaignMembership', blank=True)),
             ],
             options={
                 u'abstract': False,

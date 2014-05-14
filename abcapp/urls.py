@@ -19,11 +19,11 @@ urlpatterns = patterns(
         views.army.CampaignArmyDetailView.as_view(),
         name='abcapp.campaign.army.details'),
     url(r'^campaigns/(?P<pk>\d+)/army/(?P<army_id>\d+)/'
-        r'player/(?P<participation_id>\d+)/edit$',
+        r'player/(?P<membership_id>\d+)/edit$',
         views.army.EditArmyMemberFormView.as_view(),
         name='abcapp.campaign.army.member.edit'),
     url(r'^campaigns/(?P<pk>\d+)/army/(?P<army_id>\d+)/'
-        r'player/(?P<participation_id>\d+)/dismiss$',
+        r'player/(?P<membership_id>\d+)/dismiss$',
         views.army.DismissArmyMemberFormView.as_view(),
         name='abcapp.campaign.army.member.dismiss'),
     url(r'^army/$',

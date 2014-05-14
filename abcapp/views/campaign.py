@@ -3,7 +3,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 
 from abcapp.models import Campaign
-from abcapp.models import CampaignParticipation
+from abcapp.models import CampaignMembership
 
 
 class CampaignList(ListView):
@@ -38,16 +38,16 @@ class CampaignJoinView(DetailView):
             context['no_player'] = True
             return context
 
-        participation = CampaignParticipation.objects.filter(
+        membership = CampaignMembership.objects.filter(
             player=player, campaign=campaign).first()
 
-        if participation is not None:
+        if membership is not None:
             context['already_joined'] = True
-            context['participation'] = participation
+            context['membership'] = membership
             return context
 
-        participation = CampaignParticipation.objects.create(
+        membership = CampaignMembership.objects.create(
             player=player, campaign=campaign)
-        context['participation'] = participation
+        context['membership'] = membership
         context['joined'] = True
         return context

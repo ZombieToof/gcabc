@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 
 from abcapp.models import Army
 from abcapp.models import Campaign
-from abcapp.models import CampaignParticipation
+from abcapp.models import CampaignMembership
 from abcapp.models import Division
 from abcapp.models import Medal
 from abcapp.models import Rank
@@ -53,7 +53,7 @@ class CampaignArmyDetailView(DetailView):
         army = get_object_or_404(Army, id=self.kwargs['army_id'],
                                  campaign=campaign)
         context['army'] = army
-        context['participations'] = army.participations.all()
+        context['memberships'] = army.memberships.all()
         context['divisions'] = army.divisions
         ## # player
         ## user = getattr(self.request, 'user', None)
@@ -64,12 +64,12 @@ class CampaignArmyDetailView(DetailView):
         ##     context['no_player'] = True
         ##     return context
 
-        ## participation = CampaignParticipation.objects.filter(
+        ## membership = CampaignMembership.objects.filter(
         ##     player=player, campaign=campaign).first()
 
-        ## if participation is not None:
+        ## if membership is not None:
         ##     context['already_joined'] = True
-        ##     context['participation'] = participation
+        ##     context['membership'] = membership
         ##     return context
 
         return context
@@ -85,12 +85,12 @@ class EditArmyMemberForm(forms.Form):
     notes = forms.CharField(required=False,
                             widget=forms.Textarea)
 
-    def __init__(self, participation, *args, **kwargs):
+    def __init__(self, membership, *args, **kwargs):
         super(EditArmyMemberForm, self).__init__(*args, **kwargs)
-        self.set_choices(participation)
+        self.set_choices(membership)
 
-    def set_choices(self, participation):
-        army = participation.army
+    def set_choices(self, membership):
+        army = membership.army
 
         rank_choices = [(rank.id, rank.title) for rank in army.sorted_ranks()]
         self.fields['rank'].choices = rank_choices
@@ -111,11 +111,11 @@ class EditArmyMemberFormView(TemplateView):
 
     def get_context_data(self, **context):
         army = get_object_or_404(Army, id=self.kwargs['army_id'])
-        participation = get_object_or_404(CampaignParticipation,
-                                          id=self.kwargs['participation_id'],
+        membership = get_object_or_404(CampaignMembership,
+                                          id=self.kwargs['membership_id'],
                                           army=army)
         context['army'] = army
-        context['participation'] = participation
+        context['membership'] = membership
         user = self.request.user
         if user.is_anonymous():
             raise PermissionDenied('Nope')  # FIXME: Template with reason
@@ -127,19 +127,19 @@ class EditArmyMemberFormView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
-        form = EditArmyMemberForm(context['participation'],
+        form = EditArmyMemberForm(context['membership'],
                                   request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            participation = context['participation']
-            participation.division = Division.objects.filter(
+            membership = context['membership']
+            membership.division = Division.objects.filter(
                 id=data['division']).first()
-            participation.rank = Rank.objects.filter(
+            membership.rank = Rank.objects.filter(
                 id=data['rank']).first()
             medals = Medal.objects.filter(pk__in=data['medals'])
-            participation.medals = medals
-            participation.notes = data['notes']
-            participation.save()
+            membership.medals = medals
+            membership.notes = data['notes']
+            membership.save()
 
             messages.add_message(request, messages.SUCCESS,
                                  "Saved. Didn't think we would, did you?")
@@ -153,18 +153,18 @@ class EditArmyMemberFormView(TemplateView):
         context = self.get_context_data()
 
         # get the initial data
-        participation = context['participation']
-        rank = participation.current_rank()
+        membership = context['membership']
+        rank = membership.current_rank()
         rank_id = rank.id if rank else None
-        division = participation.division
+        division = membership.division
         division_id = division.id if division else None
-        medal_ids = [medal.id for medal in participation.medals.all()]
+        medal_ids = [medal.id for medal in membership.medals.all()]
         
         initial_data = {'rank': rank_id,
                         'division': division_id,
                         'medals': medal_ids,
-                        'notes': participation.notes}
-        context['form'] = EditArmyMemberForm(participation,
+                        'notes': membership.notes}
+        context['form'] = EditArmyMemberForm(membership,
                                              initial=initial_data)
         return self.render_to_response(context)
 
@@ -181,11 +181,11 @@ class DismissArmyMemberFormView(TemplateView):
 
     def get_context_data(self, **context):
         army = get_object_or_404(Army, id=self.kwargs['army_id'])
-        participation = get_object_or_404(CampaignParticipation,
-                                          id=self.kwargs['participation_id'],
+        membership = get_object_or_404(CampaignMembership,
+                                          id=self.kwargs['membership_id'],
                                           army=army)
         context['army'] = army
-        context['participation'] = participation
+        context['membership'] = membership
         user = self.request.user
         if user.is_anonymous():
             raise PermissionDenied('Nope')  # FIXME: Template with reason
@@ -205,24 +205,24 @@ class DismissArmyMemberFormView(TemplateView):
         if form.is_valid():
             data = form.cleaned_data
             if data['dismiss']:
-                participation = context['participation']
+                membership = context['membership']
                 try:
                     player = request.user.player
                     username = player.title
                 except ObjectDoesNotExist:
                     username = request.user.username
-                notes = participation.notes
+                notes = membership.notes
                 notes_addition = '\n\nDismissed from %s by %s on %s' % (
-                    participation.army.title, username,
+                    membership.army.title, username,
                     timezone.now().isoformat())
-                participation.notes = notes + notes_addition
-                participation.army = None
-                participation.division = None
-                participation.save()
+                membership.notes = notes + notes_addition
+                membership.army = None
+                membership.division = None
+                membership.save()
 
                 messages.add_message(
                     request, messages.SUCCESS,
-                    "The player %s is dimissed." % participation.player.title)
+                    "The player %s is dimissed." % membership.player.title)
             else:
                 messages.add_message(
                     request, messages.INFO, 'Dismissal canceled.')

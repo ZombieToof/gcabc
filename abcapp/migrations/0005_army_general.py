@@ -5,7 +5,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('abcapp', '0004_campaignparticipation_division_player_rank'),
+        ('abcapp', '0004_campaignmembership_division_player_rank'),
         ('django_phpBB3', '__first__'),
     ]
 
