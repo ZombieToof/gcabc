@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import TemplateView
@@ -127,7 +129,6 @@ class EditArmyMemberFormView(TemplateView):
         context = self.get_context_data()
         form = EditArmyMemberForm(context['participation'],
                                   request.POST)
-
         if form.is_valid():
             data = form.cleaned_data
             participation = context['participation']
@@ -165,4 +166,73 @@ class EditArmyMemberFormView(TemplateView):
                         'notes': participation.notes}
         context['form'] = EditArmyMemberForm(participation,
                                              initial=initial_data)
+        return self.render_to_response(context)
+
+
+class DismissArmyMemberForm(forms.Form):
+
+    dismiss = forms.BooleanField(label=u'Yes, dismiss the player',
+                                 required=True)
+
+
+class DismissArmyMemberFormView(TemplateView):
+
+    template_name = 'army/dismiss_army_member.html'
+
+    def get_context_data(self, **context):
+        army = get_object_or_404(Army, id=self.kwargs['army_id'])
+        participation = get_object_or_404(CampaignParticipation,
+                                          id=self.kwargs['participation_id'],
+                                          army=army)
+        context['army'] = army
+        context['participation'] = participation
+        user = self.request.user
+        if user.is_anonymous():
+            raise PermissionDenied('Nope')  # FIXME: Template with reason
+        if not army.is_officer(user.player):
+            raise PermissionDenied('Nope')  # FIXME: Template with reason
+        # FIXME: more permission checks?
+        return context
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        form = DismissArmyMemberForm(request.POST)
+        redirect_to_listing = HttpResponseRedirect(context['army'].details_url)
+
+        if 'cancel' in form.data:
+            return redirect_to_listing
+
+        if form.is_valid():
+            data = form.cleaned_data
+            if data['dismiss']:
+                participation = context['participation']
+                try:
+                    player = request.user.player
+                    username = player.title
+                except ObjectDoesNotExist:
+                    username = request.user.username
+                notes = participation.notes
+                notes_addition = '\n\nDismissed from %s by %s on %s' % (
+                    participation.army.title, username,
+                    timezone.now().isoformat())
+                participation.notes = notes + notes_addition
+                participation.army = None
+                participation.division = None
+                participation.save()
+
+                messages.add_message(
+                    request, messages.SUCCESS,
+                    "The player %s is dimissed." % participation.player.title)
+            else:
+                messages.add_message(
+                    request, messages.INFO, 'Dismissal canceled.')
+
+            return redirect_to_listing
+
+        context['form'] = form
+        return self.render_to_response(context)
+
+    def get(self, request, **kwargs):
+        context = self.get_context_data()
+        context['form'] = DismissArmyMemberForm()
         return self.render_to_response(context)

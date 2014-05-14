@@ -1,0 +1,28 @@
+{% extends "layout/__base.html" %}
+
+{% block "header_title" %}All Armies evar{% endblock %}
+
+{% block body %}
+<h1>Dismiss player {{participation.player.title}}</h1>
+
+<p>
+  <strong>
+    Think about it. Soldiers are the heard of an army. 
+    Officers alone just don't cut it. If you proceed 
+    don't complain afterwards. It's irreversable.
+  </strong>
+</p>
+
+
+<form action="" method="post">
+
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<input class="btn btn-primary" type="submit" name="submit" value="Submit" />
+<input class="btn" type="submit" name="cancel" value="Cancel" />
+</form>
+
+{% endblock %}
+
