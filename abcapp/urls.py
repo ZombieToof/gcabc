@@ -1,4 +1,6 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import include
+from django.conf.urls import patterns
+from django.conf.urls import url
 
 from abcapp import views
 
@@ -32,4 +34,9 @@ urlpatterns = patterns(
     url(r'^profile/$',
         views.profile.ProfileView.as_view(),
         name='profile'),
+
+    # API
+    url(r'^api/', include(views.api.router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls',
+                               namespace='rest_framework'))
 )
