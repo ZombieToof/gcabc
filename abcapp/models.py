@@ -296,8 +296,9 @@ class Player(MetadataMixin, models.Model):
                 color = army.color
                 memberships = army.memberships.all()
                 for membership in memberships:
-                    membership_to_army_info[membership.id] = {'color': color,
-                                                      'title': army.title}
+                    membership_to_army_info[membership.id] = {
+                        'color': color,
+                        'title': army.title}
 
             cache.set('membership_to_army_info', membership_to_army_info)
 
@@ -318,3 +319,39 @@ class Player(MetadataMixin, models.Model):
             color_style, self.title, army)
 
     colored_name.allow_tags = True
+
+
+class BattleDaySignupQuestion(TitleDescriptionMixin, MetadataMixin,
+                              models.Model):
+    '''A question that can be asked during a battle day signup'''
+
+
+class BattleDaySignupQuestionChoice(TitleDescriptionMixin, MetadataMixin,
+                                    models.Model):
+
+    order = models.IntegerField()
+    question = models.ForeignKey(BattleDaySignupQuestion,
+                                 related_name='choices')
+
+    class Meta:
+        unique_together = (('order', 'question'),)
+
+
+class BattleDay(TitleDescriptionMixin, MetadataMixin, models.Model):
+
+    campaign = models.ForeignKey(Campaign, related_name='battledays')
+    question = models.ForeignKey(BattleDaySignupQuestion,
+                                 related_name='battledays')
+
+
+class BattleDaySignup(MetadataMixin, models.Model):
+
+    battleday = models.ForeignKey(BattleDay, related_name='signups')
+    player = models.ForeignKey(Player, related_name='signups')
+    selected_choices = models.ManyToManyField(BattleDaySignupQuestionChoice,
+                                              null=True,
+                                              blank=True)
+
+    class Meta(object):
+        unique_together = (('battleday', 'player'),)
+
