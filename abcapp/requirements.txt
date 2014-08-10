@@ -7,3 +7,4 @@ pinax-theme-bootstrap
 django-extensions
 djangorestframework
 pygraphviz
+https://github.com/django/django/archive/1.7c2.zip
