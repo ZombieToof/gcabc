@@ -1,10 +1,10 @@
+-e git+https://github.com/django/django.git@stable/1.7.x#egg=django
+-e git+https://github.com/zombietoof/django-phpBB3.git@django-1.7-tests#egg=django_phpBB3
 Pillow
 MYSQL-python
-django-phpBB3
-django-pdb
+#django-pdb
 django-debug-toolbar
 pinax-theme-bootstrap
 django-extensions
 djangorestframework
 pygraphviz
-https://github.com/django/django/archive/1.7c2.zip
