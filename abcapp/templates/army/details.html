@@ -26,6 +26,7 @@
   <thead>
     <tr>
       <th>Name</th>
+      <th>Army</th>
       <th>Division</th>
       <th>Rank</th>
       <th>Medals</th>
@@ -36,9 +37,10 @@
   {% for membership in memberships %}
   <tr>
     <td>{{membership.player.title}}</td>
-    <td>{{membership.division.title}}</td>
-    <td>{{membership.current_rank.title}}</td>
-    <td>{{membership.medals.all|join:'<br />'}}</td>
+    <td>{{membership.army.title}}</td>
+    <td>{{membership.army_membership.division.title}}</td>
+    <td>{{membership.army_membership.rank.title}}</td>
+    <td>{{membership.army_membership.medals.all|join:'<br />'}}</td>
     <td>
       <a class="btn btn-primary"
          href="{% url 'abcapp.campaign.army.member.edit' pk=army.campaign.id army_id=army.id membership_id=membership.id %}">

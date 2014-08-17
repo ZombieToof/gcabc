@@ -13,6 +13,20 @@ from django_phpBB3.models import User as PhpbbUser
 from abcapp.middleware.cache import get_request_cache
 
 
+class SoftDeleteManager(models.Manager):
+    ''' Use this manager to get objects that have a deleted field '''
+    def get_query_set(self):
+        qs = super(SoftDeleteManager, self).get_query_set()
+        return qs.filter(deleted__isnull=True)
+
+    def all_with_deleted(self):
+        return super(SoftDeleteManager, self).get_query_set()
+
+    def deleted_set(self):
+        qs = super(SoftDeleteManager, self).get_query_set()
+        return qs.filter(deleted__isnull=False)
+
+
 class TitleDescriptionMixin(models.Model):
 
     title = models.CharField(max_length=400)
@@ -20,6 +34,12 @@ class TitleDescriptionMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # new object
+            self.slug = slugify(self.title)
+        super(MetadataMixin, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -33,14 +53,13 @@ class MetadataMixin(models.Model):
     updated = models.DateTimeField(auto_now=True)
     deleted = models.DateTimeField(null=True, blank=True, editable=False)
 
+    objects = SoftDeleteManager()
+
     class Meta:
         abstract = True
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            # new object
-            self.slug = slugify(self.title)
-        super(MetadataMixin, self).save(*args, **kwargs)
+    def delete(self):
+        self.deleted = timezone.now()
 
     def __str__(self):
         return self.title
@@ -187,13 +206,13 @@ class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
         return self.medals.order_by('-level', 'title')
 
     def membership_for_player(self, player):
-        membership = CampaignMembership.objects.filter(
+        membership = ArmyMembership.objects.filter(
             army=self, player=player).first()
         return membership
 
     def is_officer(self, player):
         membership = self.membership_for_player(player)
-        rank = membership.current_rank()
+        rank = membership.rank
         if not rank:
             return False
         return rank.is_officer
@@ -229,14 +248,19 @@ class Medal(TitleDescriptionMixin, MetadataMixin, models.Model):
     logo = models.ImageField(null=True, blank=True)
     level = models.IntegerField()
 
+    @property
+    def players(self):
+        # TODO: optimize into one query
+        return [m.player for m in self.memberships]
 
-class CampaignMembership(MetadataMixin, models.Model):
 
-    ranks = models.ManyToManyField(Rank,
-                                   related_name='memberships',
-                                   null=True,
-                                   blank=True)
-    army = models.ForeignKey(Army,
+class ArmyMembership(MetadataMixin, models.Model):
+
+    player = models.ForeignKey('Player')
+
+    army = models.ForeignKey(Army)
+
+    rank = models.ForeignKey(Rank,
                              related_name='memberships',
                              null=True,
                              blank=True)
@@ -250,19 +274,59 @@ class CampaignMembership(MetadataMixin, models.Model):
                                     blank=True)
     notes = models.TextField(null=True, blank=True)
 
-    player = models.ForeignKey('Player',
-                               related_name='memberships')
+    class Meta(object):
+        unique_together = (('player', 'army', 'deleted'),)
+        # FIXME: can we test for army.campaign?
+
+    def _assert_army(self, foreign):
+        assert foreign.army == self.army, 'Armies do not match: %s != %s' % (
+            self.army, foreign.army)
+
+    def set_division(self, division):
+        self._assert_army()
+        self.division = division
+
+    def set_rank(self, rank):
+        self._assert_army()
+        # FIXME: if we support demotion we need an ManyToMany field
+        self.rank = rank
+
+    def add_medal(self, medal):
+        self._assert_army()
+        self.medals.add(medal)
+
+    @property
+    def title(self):
+        army_title = self.army.title if self.army else u'No Army'
+        return u'%s - %s' % (self.player.title, army_title)
+
+
+class CampaignMembership(MetadataMixin, models.Model):
+    """Hold signups for campaigns"""
 
     campaign = models.ForeignKey(Campaign,
                                  related_name='memberships')
 
+    player = models.ForeignKey('Player',
+                               related_name='memberships')
+
+    notes = models.TextField(null=True, blank=True)
+
     class Meta(object):
         unique_together = (('player', 'campaign'),)
 
-    def current_rank(self):
-        ranks = self.ranks.filter(army=self.army)
-        highest_rank = ranks.order_by('level').first()
-        return highest_rank
+    @property
+    def army_membership(self):
+        return ArmyMembership.objects.filter(
+            player=self.player,
+            campaign=self.campaign).first()
+
+    @property
+    def army(self):
+        army_membership = self.army_membership
+        if army_membership is None:
+            return None
+        return self.army_membership.army
 
     @property
     def title(self):
@@ -272,6 +336,7 @@ class CampaignMembership(MetadataMixin, models.Model):
 class Player(MetadataMixin, models.Model):
     phpbb_user = models.OneToOneField(PhpbbUser,
                                       related_name='player')
+
     django_user = models.OneToOneField(User,
                                        related_name='player')
 
@@ -280,6 +345,12 @@ class Player(MetadataMixin, models.Model):
                                        through=CampaignMembership,
                                        null=True,
                                        blank=True)
+
+    armies = models.ManyToManyField(Army,
+                                    related_name='players',
+                                    through=ArmyMembership,
+                                    null=True,
+                                    blank=True)
 
     @property
     def title(self):
