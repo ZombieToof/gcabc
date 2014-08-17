@@ -60,7 +60,7 @@ INSTALLED_APPS = (
     'abcapp',
     'pinax_theme_bootstrap',
     'bootstrapform',
-    'django_pdb',
+#    'django_pdb',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -73,7 +73,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'abcapp.middleware.cache.RequestCacheMiddleware',
-    'django_pdb.middleware.PdbMiddleware',  # has to be the last middleware
+#    'django_pdb.middleware.PdbMiddleware',  # has to be the last middleware
     )
 
 ROOT_URLCONF = 'gcsite.urls'
@@ -113,6 +113,11 @@ DATABASES = {
         'PASSWORD': 'phpbb',
     }
 }
+
+# import sys
+# if 'test' in sys.argv:
+#     DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
+#     DATABASES['default']['NAME'] = 'testdatabase.db3'
 
 # DATABASES = {
 #     'default': {
