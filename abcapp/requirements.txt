@@ -1,5 +1,6 @@
 -e git+https://github.com/django/django.git@stable/1.7.x#egg=django
 -e git+https://github.com/zombietoof/django-phpBB3.git@django-1.7-tests#egg=django_phpBB3
+factory_boy
 Pillow
 MYSQL-python
 #django-pdb
