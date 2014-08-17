@@ -15,15 +15,15 @@ from abcapp.middleware.cache import get_request_cache
 
 class SoftDeleteManager(models.Manager):
     ''' Use this manager to get objects that have a deleted field '''
-    def get_query_set(self):
-        qs = super(SoftDeleteManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(SoftDeleteManager, self).get_queryset()
         return qs.filter(deleted__isnull=True)
 
     def all_with_deleted(self):
-        return super(SoftDeleteManager, self).get_query_set()
+        return super(SoftDeleteManager, self).get_queryset()
 
     def deleted_set(self):
-        qs = super(SoftDeleteManager, self).get_query_set()
+        qs = super(SoftDeleteManager, self).get_queryset()
         return qs.filter(deleted__isnull=False)
 
 
