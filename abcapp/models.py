@@ -19,9 +19,11 @@ class SoftDeleteManager(models.Manager):
         qs = super(SoftDeleteManager, self).get_queryset()
         return qs.filter(deleted__isnull=True)
 
-    def all_with_deleted(self):
+    @property
+    def with_deleted_set(self):
         return super(SoftDeleteManager, self).get_queryset()
 
+    @property
     def deleted_set(self):
         qs = super(SoftDeleteManager, self).get_queryset()
         return qs.filter(deleted__isnull=False)

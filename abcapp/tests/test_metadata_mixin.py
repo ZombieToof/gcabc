@@ -44,8 +44,8 @@ class MetadataMixinTextCase(TestCase):
         self.assertTrue(len(Campaign.objects.all()), 1)
 
         # but still present in the deleted and with_deleted query sets
-        self.assertTrue(len(Campaign.objects.all_with_deleted().all()), 2)
-        self.assertTrue(len(Campaign.objects.deleted_set().all()), 1)
+        self.assertTrue(len(Campaign.objects.with_deleted_set.all()), 2)
+        self.assertTrue(len(Campaign.objects.deleted_set.all()), 1)
 
     def test_delete_does_not_save_automatically(self):
         campaign = CampaignFactory.create(title=u'Testcampaign')
@@ -55,12 +55,12 @@ class MetadataMixinTextCase(TestCase):
         # delete does not save automatically
         campaign.delete()
         self.assertEqual(len(Campaign.objects.all()), 1)
-        self.assertEqual(len(Campaign.objects.deleted_set().all()), 0)
+        self.assertEqual(len(Campaign.objects.deleted_set.all()), 0)
 
         # if we save the object, it is removed from Campaign.objects
         campaign.save()
         self.assertEqual(len(Campaign.objects.all()), 0)
-        self.assertEqual(len(Campaign.objects.deleted_set().all()), 1)
+        self.assertEqual(len(Campaign.objects.deleted_set.all()), 1)
 
     def test_object_is_marked_as_deleted_date(self):
         campaign = CampaignFactory.create(title=u'Testcampaign')
