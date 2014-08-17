@@ -21,8 +21,8 @@ def gen_color(n):
                               color_values['blue'])
 
 
-def now_plus_days(n, days):
-    return timezone.now() + timedelta(days=n*days)
+def now_plus_days(n, days, days_to_add=0):
+    return timezone.now() + timedelta(days=((n*days) + days_to_add))
 
 
 class CampaignFactory(DjangoModelFactory):
@@ -32,6 +32,7 @@ class CampaignFactory(DjangoModelFactory):
 
     title = factory.Sequence(lambda n: 'BF4C%d' % n)
     start = factory.Sequence(lambda n: now_plus_days(n, 100))
+    end = factory.Sequence(lambda n: now_plus_days(n, 100, days_to_add=99))
 
 
 class DivisionFactory(DjangoModelFactory):

@@ -125,7 +125,7 @@ class Campaign(TitleDescriptionMixin, MetadataMixin, models.Model):
     @property
     def started(self):
         now = timezone.now()
-        self.start and (self.start <= now)
+        return self.start and (self.start <= now)
 
     @property
     def running(self):
