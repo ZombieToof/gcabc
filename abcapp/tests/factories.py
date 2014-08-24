@@ -1,5 +1,7 @@
 from datetime import timedelta
+from django.contrib.auth import models as contrib_auth_models
 from django.utils import timezone
+from django_phpBB3 import models as phpbb_models
 from factory import DjangoModelFactory
 import factory
 
@@ -25,6 +27,75 @@ def now_plus_days(n, days, days_to_add=0):
     return timezone.now() + timedelta(days=((n*days) + days_to_add))
 
 
+class PhpbbGroupFactory(DjangoModelFactory):
+
+    class Meta:
+        model = phpbb_models.Group
+
+    id = factory.Sequence(lambda n: int(n))
+    # required. We don't care in tests, so we assign some values
+    skip_auth = 0
+    desc = factory.Sequence(lambda n: 'PhpbbGroup%s' % n)
+    desc_bitfield = '1'
+    desc_uid = factory.Sequence(lambda n: 'Desc%s' % n)
+    max_recipients = '1000'
+
+
+class PhpbbStyleFactory(DjangoModelFactory):
+    '''The style of the board, requried by User'''
+
+    class Meta:
+        model = phpbb_models.Style
+
+    id = factory.Sequence(lambda n: int(n))
+    style_name = factory.Sequence(lambda n: 'Some style %s' % n)
+    style_copyright = 'Copyright'
+
+
+class PhpbbUserFactory(DjangoModelFactory):
+
+    class Meta:
+        model = phpbb_models.User
+
+    id = factory.Sequence(lambda n: int(n))
+    username = factory.Sequence(lambda n: 'PhpbbUser%s' % n)
+    username_clean = factory.Sequence(lambda n: 'phpbbuser%s' % n)
+    email = factory.Sequence(lambda n: 'phpbbuser%s@example.com' % n)
+    group = factory.SubFactory(PhpbbGroupFactory)
+    style = factory.SubFactory(PhpbbStyleFactory)
+    # required. We don't care in tests, so we assign some values
+    new = 1
+    reminded = 1
+    reminded_time = 1
+
+
+class DjangoUserFactory(DjangoModelFactory):
+
+    class Meta:
+        model = contrib_auth_models.User
+
+    username = factory.Sequence(lambda n: 'phpbb_user_%s' % n)
+
+
+class PlayerFactory(DjangoModelFactory):
+
+    class Meta:
+        model = models.Player
+
+    phpbb_user = factory.SubFactory(PhpbbUserFactory)
+    django_user = factory.SubFactory(DjangoUserFactory)
+
+
+class PhpbbRankFactory(DjangoModelFactory):
+
+    class Meta:
+        model = phpbb_models.Rank
+
+    id = factory.Sequence(lambda n: int(n))
+    rank_title = factory.Sequence(lambda n: 'PhpbbRank %s' % n)
+    rank_image = 'what for'
+
+
 class CampaignFactory(DjangoModelFactory):
 
     class Meta:
@@ -37,16 +108,26 @@ class CampaignFactory(DjangoModelFactory):
 
 class DivisionFactory(DjangoModelFactory):
 
+    class Meta:
+        model = models.Division
+
     title = factory.Iterator(['Headquater', 'Airforce', 'Armor', 'Infantrie'])
 
 
 class RankFactory(DjangoModelFactory):
 
+    class Meta:
+        model = models.Rank
+
+    phpbb_rank = factory.SubFactory(PhpbbRankFactory)
     title = factory.Iterator(['Private', 'Specialist', 'Major', 'General'])
     level = factory.sequence([1, 10, 20, 40])
 
 
 class MedalFactory(DjangoModelFactory):
+
+    class Meta:
+        model = models.Medal
 
     title = factory.Iterator(['Lead', 'Bronze', 'Silver', 'Gold'])
     level = factory.sequence([1, 10, 20, 40])
@@ -54,6 +135,11 @@ class MedalFactory(DjangoModelFactory):
 
 class FullArmyFactory(DjangoModelFactory):
 
+    class Meta:
+        model = models.Army
+
+    title = factory.Sequence(lambda n: 'Army %s' % n)
+    campaign = factory.SubFactory(CampaignFactory)
     tag = factory.Sequence(lambda n: 'AY%d' % n)
     ts_password = factory.Sequence(lambda n: 'ts_pw%d' % n)
     join_password = factory.Sequence(lambda n: 'join_pw%d' % n)
@@ -63,7 +149,7 @@ class FullArmyFactory(DjangoModelFactory):
     # create divisions
     headquater = factory.RelatedFactory(DivisionFactory,
                                         'army', title='Headquater',
-                                        id_headquater=True)
+                                        is_headquater=True)
     armor = factory.RelatedFactory(DivisionFactory,
                                    'army', title='Armor')
     airforce = factory.RelatedFactory(DivisionFactory,
@@ -92,3 +178,10 @@ class FullArmyFactory(DjangoModelFactory):
                                     'army', title='Silver', level=20)
     gold = factory.RelatedFactory(MedalFactory,
                                   'army', title='Gold', level=40)
+
+
+class ArmyMembershipFactory(DjangoModelFactory):
+
+    class Meta:
+        model = models.ArmyMembership
+
