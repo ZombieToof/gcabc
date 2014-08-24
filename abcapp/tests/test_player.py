@@ -1,17 +1,16 @@
-from datetime import timedelta
 from django.contrib.auth import models as auth_models
 from django.test import TestCase
-from django.utils import timezone
 from django_phpBB3 import models as phpbb_models
 from abcapp import models
 from abcapp.tests.factories import ArmyMembershipFactory
+from abcapp.tests.factories import CampaignFactory
 from abcapp.tests.factories import DjangoUserFactory
 from abcapp.tests.factories import FullArmyFactory
 from abcapp.tests.factories import PhpbbUserFactory
 from abcapp.tests.factories import PlayerFactory
 
 
-class CampaignTestCase(TestCase):
+class PlayerTestCase(TestCase):
 
     def test_player_factories(self):
         phpbb_user = PhpbbUserFactory.create()
@@ -45,7 +44,18 @@ class CampaignTestCase(TestCase):
         player = PlayerFactory.create()
 
         # make the player a member of the army
-        ArmyMembershipFactory(player=player, army=army)
+        models.ArmyMembership.objects.create(player=player, army=army)
         self.assertEqual(len(models.ArmyMembership.objects.all()), 1)
         self.assertEqual(len(player.armies.all()), 1)
         self.assertEqual(player.armies.first().title, u'Test Army')
+
+    def test_player_can_join_campaign(self):
+        campaign = CampaignFactory.create(title=u'Test Campaign')
+        player = PlayerFactory.create()
+
+        # make the player join a campaign
+        models.CampaignMembership.objects.create(campaign=campaign,
+                                                 player=player)
+        self.assertEqual(len(models.CampaignMembership.objects.all()), 1)
+        self.assertEqual(len(player.campaigns.all()), 1)
+        self.assertEqual(player.campaigns.first().title, u'Test Campaign')
