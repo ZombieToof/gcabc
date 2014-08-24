@@ -300,7 +300,9 @@ class ArmyMembership(MetadataMixin, models.Model):
     @property
     def title(self):
         army_title = self.army.title if self.army else u'No Army'
-        return u'%s - %s' % (self.player.title, army_title)
+        return u'Army: %s(%s) - Player: %s (%s)' % (
+            self.army.id, army_title,
+            self.player.id, self.player.title)
 
 
 class CampaignMembership(MetadataMixin, models.Model):
@@ -336,6 +338,7 @@ class CampaignMembership(MetadataMixin, models.Model):
 
 
 class Player(MetadataMixin, models.Model):
+
     phpbb_user = models.OneToOneField(PhpbbUser,
                                       related_name='player')
 
@@ -356,7 +359,9 @@ class Player(MetadataMixin, models.Model):
 
     @property
     def title(self):
-        return self.phpbb_user.username
+        return '%s (phpbb: %s (%s), django: %s (%s))' % (
+            self.id, self.phpbb_user.id, self.phpbb_user.username,
+            self.django_user.id, self.django_user.username)
 
     def cached_army_info(self):
         cache = get_request_cache()
