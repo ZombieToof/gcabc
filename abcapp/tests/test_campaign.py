@@ -8,7 +8,8 @@ from abcapp.tests.factories import CampaignFactory
 
 class CampaignTestCase(TestCase):
 
-    def _create_campaign(self, title, start=None, end=None):
+    @classmethod
+    def _create_campaign(cls, title, start=None, end=None):
         kwargs = {'title': title}
         if start:
             kwargs['start'] = start
