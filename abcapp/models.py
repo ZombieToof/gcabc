@@ -201,9 +201,11 @@ class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
                                              null=True,
                                              blank=True)
 
+    @property
     def sorted_ranks(self):
         return self.ranks.order_by('-level', 'title')
 
+    @property
     def sorted_medals(self):
         return self.medals.order_by('-level', 'title')
 
@@ -225,6 +227,34 @@ class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
                        kwargs={'pk': self.campaign.id,
                                'army_id': self.id})
 
+    def formated(self):
+
+        general = None
+        if self.general:
+            general = self.general.username
+        out = (self.title + '\n' +
+               len(self.title) * u'*' + '\n' +
+               u'General: %s\n' % general +
+               u'Tag: %s\n' % self.tag +
+               '\n' +
+               '\n')
+        for division in self.divisions.all():
+            commander = None
+            if division.commander:
+                commander = division.commander.username
+
+            out = (out +
+                   'Division: ' + division.title + '\n' +
+                   (10 + len(division.title)) * '-' + '\n' +
+                   'Headquater: %s\n' % division.is_headquater +
+                   'Commander: %s\n' % commander +
+                   'Players:\n')
+
+            for membership in division.memberships.all():
+                out = out + u' * %s\n' % membership.player.phpbb_user.username
+
+            out = out + '\n\n'
+        return out
 
 class Division(TitleDescriptionMixin, MetadataMixin, models.Model):
     army = models.ForeignKey(Army, related_name='divisions')
@@ -252,7 +282,7 @@ class Medal(TitleDescriptionMixin, MetadataMixin, models.Model):
 
     @property
     def players(self):
-        # TODO: optimize into one query
+        # TODO: optimize into one query?
         return [m.player for m in self.memberships]
 
 

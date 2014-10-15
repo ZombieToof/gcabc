@@ -52,6 +52,16 @@ class PhpbbStyleFactory(DjangoModelFactory):
     style_copyright = 'Copyright'
 
 
+class PhpbbRankFactory(DjangoModelFactory):
+
+    class Meta:
+        model = phpbb_models.Rank
+
+    id = factory.Sequence(lambda n: int(n))
+    rank_title = factory.Sequence(lambda n: 'PhpbbRank %s' % n)
+    rank_image = 'what for'
+
+
 class PhpbbUserFactory(DjangoModelFactory):
 
     class Meta:
@@ -63,6 +73,7 @@ class PhpbbUserFactory(DjangoModelFactory):
     email = factory.Sequence(lambda n: 'phpbbuser%s@example.com' % n)
     group = factory.SubFactory(PhpbbGroupFactory)
     style = factory.SubFactory(PhpbbStyleFactory)
+    rank = factory.SubFactory(PhpbbRankFactory)
     # required. We don't care in tests, so we assign some values
     new = 1
     reminded = 1
@@ -84,16 +95,6 @@ class PlayerFactory(DjangoModelFactory):
 
     phpbb_user = factory.SubFactory(PhpbbUserFactory)
     django_user = factory.SubFactory(DjangoUserFactory)
-
-
-class PhpbbRankFactory(DjangoModelFactory):
-
-    class Meta:
-        model = phpbb_models.Rank
-
-    id = factory.Sequence(lambda n: int(n))
-    rank_title = factory.Sequence(lambda n: 'PhpbbRank %s' % n)
-    rank_image = 'what for'
 
 
 class CampaignFactory(DjangoModelFactory):
@@ -172,7 +173,7 @@ class FullArmyFactory(DjangoModelFactory):
     # create medals
     lead = factory.RelatedFactory(MedalFactory,
                                   'army', title='Lead', level=1)
-    Bronze = factory.RelatedFactory(MedalFactory,
+    bronze = factory.RelatedFactory(MedalFactory,
                                     'army', title='Bronze', level=10)
     silver = factory.RelatedFactory(MedalFactory,
                                     'army', title='Silver', level=20)
