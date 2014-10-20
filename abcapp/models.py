@@ -256,6 +256,7 @@ class Army(TitleDescriptionMixin, MetadataMixin, models.Model):
             out = out + '\n\n'
         return out
 
+
 class Division(TitleDescriptionMixin, MetadataMixin, models.Model):
     army = models.ForeignKey(Army, related_name='divisions')
     logo = models.ImageField(null=True, blank=True)
@@ -264,6 +265,10 @@ class Division(TitleDescriptionMixin, MetadataMixin, models.Model):
                                   null=True,
                                   blank=True)
     is_headquater = models.BooleanField(default=False)
+
+    @property
+    def players(self):
+        return Player.objects.filter(armymembership__division=self).all()
 
 
 class Rank(TitleDescriptionMixin, MetadataMixin, models.Model):
