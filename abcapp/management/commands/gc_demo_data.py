@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+""" django admin command to load demo data in abc"""
+
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -29,11 +31,11 @@ class Command(BaseCommand):
         campaign = factories.CampaignFactory(title=title, start=start,
                                              end=end)
         for (name, tag, army_members) in (
-                (army1_name, army1_tag, players[0:len(players)/2]),
-                (army2_name, army2_tag, players[(len(players)/2) + 1:])):
+            (army1_name, army1_tag, players[0:len(players)/2]),
+            (army2_name, army2_tag, players[(len(players)/2) + 1:])):
             army = factories.FullArmyFactory.create(title=name,
-                                                    campaign=campaign)
-            army.tag = tag
+                                                    campaign=campaign,
+                                                    tag=tag)
             divisions = army.divisions.all()
             generals_rank = army.sorted_ranks[0]
             other_ranks = army.sorted_ranks[1:] # all but general
@@ -86,17 +88,14 @@ class Command(BaseCommand):
             self.stdout.write('Created Players and Campaigns')
             self.stdout.write('=============================')
 
-            campaigns = models.Campaign.objects.all()
-            self.write_title_list('Campaigns', campaigns)
+        campaigns = models.Campaign.objects.all()
+        self.write_title_list('Campaigns', campaigns)
 
-            for campaign in campaigns:
-                self.stdout.write(campaign.title)
-                self.stdout.write(len(campaign.title) * '*' + u'\n\n')
-                for army in campaign.armies.all():
-                    self.stdout.write(army.formated())
-
-            raise ValueError('something might have gone wrong')
-
+        for campaign in campaigns:
+            self.stdout.write(campaign.title)
+            self.stdout.write(len(campaign.title) * '*' + u'\n\n')
+            for army in campaign.armies.all():
+                self.stdout.write(army.formated())
 
     def write_title_list(self, label, items):
         self.stdout.write(label + '\n' + len(label) * '=' + '\n')
