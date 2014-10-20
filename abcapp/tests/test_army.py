@@ -1,11 +1,6 @@
-from django.contrib.auth import models as auth_models
 from django.test import TestCase
-from django_phpBB3 import models as phpbb_models
 from abcapp import models
-from abcapp.tests.factories import CampaignFactory
-from abcapp.tests.factories import DjangoUserFactory
 from abcapp.tests.factories import FullArmyFactory
-from abcapp.tests.factories import PhpbbUserFactory
 from abcapp.tests.factories import PlayerFactory
 
 
