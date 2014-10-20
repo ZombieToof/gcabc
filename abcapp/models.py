@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
@@ -315,22 +316,22 @@ class ArmyMembership(MetadataMixin, models.Model):
         unique_together = (('player', 'army', 'deleted'),)
         # FIXME: can we test for army.campaign?
 
-    def _assert_army(self, foreign):
-        assert foreign.army == self.army, 'Armies do not match: %s != %s' % (
-            self.army, foreign.army)
+    def clean(self):
+        if self.rank and self.army != self.rank.army:
+            raise ValidationError(
+                ('The rank\'s army(%s) has to match them memberships '
+                 'army: %s') % (self.rank.army, self.army))
 
-    def set_division(self, division):
-        self._assert_army()
-        self.division = division
+        if self.division and self.army != self.division.army:
+            raise ValidationError(
+                ('The division\'s army(%s) has to match them memberships '
+                 'army: %s') % (self.division.army, self.army))
 
-    def set_rank(self, rank):
-        self._assert_army()
-        # FIXME: if we support demotion we need an ManyToMany field
-        self.rank = rank
-
-    def add_medal(self, medal):
-        self._assert_army()
-        self.medals.add(medal)
+        for medal in self.medals.all():
+            if medal.army != self.army:
+                raise ValidationError(
+                ('The medals\'s army(%s) has to match them memberships '
+                 'army: %s') % (medal.army, self.army))
 
     @property
     def title(self):
