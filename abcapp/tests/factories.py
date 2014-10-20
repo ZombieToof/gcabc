@@ -31,9 +31,7 @@ def now_plus_days(number, days, days_to_add=0):
 
 def read_data_file(name):
     module_dir = os.path.dirname(os.path.realpath(__file__))
-    print module_dir
     file_path = os.path.join(module_dir, 'data', name)
-    print file_path
     return open(file_path, 'r')
 
 
