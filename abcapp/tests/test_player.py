@@ -13,9 +13,10 @@ from abcapp.tests.factories import PlayerFactory
 class PlayerTestCase(TestCase):
 
     def test_player_factories(self):
-        phpbb_user = PhpbbUserFactory.create()
+        phpbb_user = PhpbbUserFactory.create(username='abc')
         self.assertEqual(phpbb_models.User.objects.first().username,
                          phpbb_user.username)
+        self.assertEqual(phpbb_user.username, 'abc')
         django_user = DjangoUserFactory.create()
         self.assertEqual(auth_models.User.objects.first().username,
                          django_user.username)

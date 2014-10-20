@@ -3,7 +3,9 @@ from django.contrib.auth import models as contrib_auth_models
 from django.utils import timezone
 from django_phpBB3 import models as phpbb_models
 from factory import DjangoModelFactory
+
 import factory
+import os.path
 
 from abcapp import models
 
@@ -23,8 +25,28 @@ def gen_color(n):
                               color_values['blue'])
 
 
-def now_plus_days(n, days, days_to_add=0):
-    return timezone.now() + timedelta(days=((n*days) + days_to_add))
+def now_plus_days(number, days, days_to_add=0):
+    return timezone.now() + timedelta(days=((number*days) + days_to_add))
+
+
+def read_data_file(name):
+    module_dir = os.path.dirname(os.path.realpath(__file__))
+    print module_dir
+    file_path = os.path.join(module_dir, 'data', name)
+    print file_path
+    return open(file_path, 'r')
+
+
+def _names():
+    names = []
+    names_file = read_data_file('names.csv')
+    return [name.strip() for name in names_file]
+
+
+names = _names()
+
+def make_username(i):
+    return '%s(%s)' % (names[i], i)
 
 
 class PhpbbGroupFactory(DjangoModelFactory):
@@ -68,8 +90,8 @@ class PhpbbUserFactory(DjangoModelFactory):
         model = phpbb_models.User
 
     id = factory.Sequence(lambda n: int(n))
-    username = factory.Sequence(lambda n: 'PhpbbUser%s' % n)
-    username_clean = factory.Sequence(lambda n: 'phpbbuser%s' % n)
+    username = factory.Sequence(make_username)
+    username_clean = factory.Sequence(lambda i: make_username(i).lower())
     email = factory.Sequence(lambda n: 'phpbbuser%s@example.com' % n)
     group = factory.SubFactory(PhpbbGroupFactory)
     style = factory.SubFactory(PhpbbStyleFactory)
@@ -85,7 +107,7 @@ class DjangoUserFactory(DjangoModelFactory):
     class Meta:
         model = contrib_auth_models.User
 
-    username = factory.Sequence(lambda n: 'phpbb_user_%s' % n)
+    username = factory.Sequence(make_username)
 
 
 class PlayerFactory(DjangoModelFactory):
