@@ -76,7 +76,7 @@ class Campaign(TitleDescriptionMixin, MetadataMixin, models.Model):
 
     @property
     def details_url(self):
-        return reverse('campaign', kwargs={'pk': self.id})
+        return reverse('abcapp.campaign', kwargs={'pk': self.id})
 
     def battledays(self):
         pass
