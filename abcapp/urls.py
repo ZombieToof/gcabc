@@ -8,6 +8,8 @@ urlpatterns = patterns(
     '',
     url(r'^campaigns/$', views.campaign.CampaignList.as_view(),
         name='abcapp.campaigns'),
+    url(r'^campaigns/add/$', views.campaign.CreateCampaignFormView.as_view(),
+        name='abcapp.campaigns'),
     url(r'^campaigns/(?P<pk>\d+)/$',
         views.campaign.CampaignDetailView.as_view(),
         name='abcapp.campaign'),

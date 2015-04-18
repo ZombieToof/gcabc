@@ -1,0 +1,13 @@
+{% extends "layout/__base.html" %}
+
+{% block "header_title" %}Campaigns{% endblock %}
+
+{% block body %}
+
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>
+
+{% endblock %}
