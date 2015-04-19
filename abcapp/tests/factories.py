@@ -36,18 +36,40 @@ def read_data_file(name):
 
 
 def _names():
-    names = []
     names_file = read_data_file('names.csv')
     return [name.strip() for name in names_file]
 
 
 names = _names()
 
+
 def make_username(i):
     return '%s(%s)' % (names[i], i)
 
 
-class PhpbbGroupFactory(DjangoModelFactory):
+class SequencedModelFactory(DjangoModelFactory):
+    '''
+    _setup_next_sequence was removed in factoryboy 2.5.0.
+    It breaks references in the current factories.
+    See https://github.com/rbarrois/factory_boy/commit/13d310f
+    '''
+
+    @classmethod
+    def _setup_next_sequence(cls):
+        """Compute the next available PK, based on the 'pk' database field."""
+
+        model = cls._get_model_class()  # pylint: disable=E1101
+        manager = cls._get_manager(model)
+
+        try:
+            return 1 + manager.values_list('pk', flat=True).order_by('-pk')[0]
+        except (IndexError, TypeError):
+            # IndexError: No instance exist yet
+            # TypeError: pk isn't an integer type
+            return 1
+
+
+class PhpbbGroupFactory(SequencedModelFactory):
 
     class Meta:
         model = phpbb_models.Group
@@ -72,7 +94,7 @@ class PhpbbStyleFactory(DjangoModelFactory):
     style_copyright = 'Copyright'
 
 
-class PhpbbRankFactory(DjangoModelFactory):
+class PhpbbRankFactory(SequencedModelFactory):
 
     class Meta:
         model = phpbb_models.Rank
@@ -82,7 +104,7 @@ class PhpbbRankFactory(DjangoModelFactory):
     rank_image = 'what for'
 
 
-class PhpbbUserFactory(DjangoModelFactory):
+class PhpbbUserFactory(SequencedModelFactory):
 
     class Meta:
         model = phpbb_models.User
