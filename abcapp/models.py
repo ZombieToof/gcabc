@@ -308,7 +308,6 @@ class ArmyMembership(MetadataMixin, models.Model):
                                  blank=True)
     medals = models.ManyToManyField(Medal,
                                     related_name='memberships',
-                                    null=True,
                                     blank=True)
     notes = models.TextField(null=True, blank=True)
 
@@ -384,13 +383,11 @@ class Player(MetadataMixin, models.Model):
     campaigns = models.ManyToManyField(Campaign,
                                        related_name='players',
                                        through=CampaignMembership,
-                                       null=True,
                                        blank=True)
 
     armies = models.ManyToManyField(Army,
                                     related_name='players',
                                     through=ArmyMembership,
-                                    null=True,
                                     blank=True)
 
     @property
@@ -463,7 +460,6 @@ class BattleDaySignup(MetadataMixin, models.Model):
     battleday = models.ForeignKey(BattleDay, related_name='signups')
     player = models.ForeignKey(Player, related_name='signups')
     selected_choices = models.ManyToManyField(BattleDaySignupQuestionChoice,
-                                              null=True,
                                               blank=True)
 
     class Meta(object):
